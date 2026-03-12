@@ -5,129 +5,378 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>SpeakUp – English Speaking Partner</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:#060A15;color:#E8EDF8;font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh}
-  h1,h2,h3,strong{font-family:'Syne',sans-serif}
-  .page{min-height:100vh;display:none}
-  .page.active{display:flex}
-  .center{align-items:center;justify-content:center}
-  .card{background:rgba(10,15,28,.97);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:40px 36px;width:420px;max-width:94vw;box-shadow:0 40px 100px rgba(0,0,0,.6)}
-  .logo{text-align:center;margin-bottom:28px}
-  .logo-icon{font-size:52px;display:block;margin-bottom:8px}
-  .logo-title{font-size:30px;font-weight:800;color:#34D399;letter-spacing:-1px}
-  .logo-sub{color:#3A4462;font-size:13px;margin-top:6px}
-  .field{margin-bottom:20px}
-  .label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3A4462;margin-bottom:8px;font-family:'Syne',sans-serif}
-  input,select{width:100%;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.09);border-radius:10px;padding:12px 14px;color:#E8EDF8;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none}
-  input:focus,select:focus{border-color:#34D399;box-shadow:0 0 0 3px rgba(52,211,153,.1)}
-  select option{background:#0D1526}
-  .btn{width:100%;padding:14px;background:linear-gradient(135deg,#34D399,#059669);border:none;border-radius:12px;color:#030A08;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .15s}
-  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(52,211,153,.3)}
-  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
-  .btn-danger{background:#EF4444;color:white}
-  .btn-danger:hover{background:#DC2626;box-shadow:0 8px 28px rgba(239,68,68,.3)}
-  .btn-sm{padding:9px 18px;font-size:13px;width:auto;border-radius:10px}
-  .err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#FCA5A5;font-size:13px;padding:10px 14px;border-radius:10px;margin-bottom:14px}
-  /* TOPBAR */
-  .topbar{padding:12px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(6,10,21,.9);position:sticky;top:0;z-index:20}
-  .tb-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#34D399}
-  .online-pill{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2);color:#34D399;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px}
-  .me-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:5px 14px;font-size:14px}
-  .lvl-tag{font-family:'Syne',sans-serif;font-weight:700;font-size:11px;padding:3px 8px;border-radius:6px}
-  /* LOBBY */
-  .lobby-body{padding:24px 28px;flex:1}
-  .user-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:16px}
-  .ucard{background:rgba(10,15,28,.8);border:1.5px solid rgba(255,255,255,.07);border-radius:18px;padding:20px 16px;display:flex;flex-direction:column;align-items:center;gap:7px;transition:all .2s}
-  .ucard.available:hover{border-color:rgba(52,211,153,.3);transform:translateY(-3px)}
-  .ucard.busy{opacity:.4}
-  .avatar{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:17px;color:rgba(255,255,255,.9);position:relative}
-  .sdot{position:absolute;bottom:1px;right:1px;width:13px;height:13px;border-radius:50%;border:2.5px solid #060A15}
-  .uname{font-weight:600;font-size:14px}
-  .ustat{font-size:12px;color:#3A4462}
-  /* CALL OVERLAY */
-  .call-overlay{position:fixed;inset:0;background:rgba(6,10,21,.97);z-index:100;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center}
-  .call-overlay.show{display:flex}
-  .call-avatar{width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:24px;color:rgba(255,255,255,.9);margin:0 auto;position:relative;z-index:1}
-  .ripple-wrap{position:relative;width:90px;height:90px;margin:0 auto}
-  .ripple{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(52,211,153,.3);animation:ripple 1.8s ease-out infinite}
-  .ripple2{animation-delay:.9s;border-color:rgba(52,211,153,.15)}
-  @keyframes ripple{0%{transform:scale(.9);opacity:1}100%{transform:scale(2.4);opacity:0}}
-  /* ACTIVE CALL */
-  #page-active{flex-direction:row}
-  .call-panel{width:280px;min-width:260px;background:rgba(6,10,21,.98);border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;overflow-y:auto}
-  .cp-sec{padding:16px;border-bottom:1px solid rgba(255,255,255,.05)}
-  .cp-label{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1E2A3A;margin-bottom:10px;font-family:'Syne',sans-serif}
-  .participants{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-  .ptcp{display:flex;flex-direction:column;align-items:center;gap:4px}
-  .ptcp-av{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:rgba(255,255,255,.9)}
-  .ptcp-name{font-size:10px;color:#6B7A9C;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .call-timer{text-align:center;font-size:28px;font-weight:300;color:#34D399;letter-spacing:3px;font-family:'Syne',sans-serif}
-  .conn-state{text-align:center;font-size:11px;font-weight:600;margin:4px 0 6px}
-  .waveform{display:flex;align-items:center;justify-content:center;gap:3px;height:28px}
-  .wbar{width:3px;border-radius:3px;background:rgba(52,211,153,.2);height:4px}
-  .wbar.active{animation:wb .6s ease-in-out infinite alternate;background:#34D399}
-  @keyframes wb{0%{height:4px;opacity:.4}100%{height:22px;opacity:1}}
-  .ctrl{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:11px;cursor:pointer;width:100%;color:white;font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:7px;transition:all .15s}
-  .ctrl:hover{background:rgba(255,255,255,.07)}
-  .ctrl-icon{font-size:18px}
-  .ctrl-label{font-size:12px;font-weight:600;font-family:'Syne',sans-serif;text-align:left}
-  .ctrl-sub{font-size:10px;color:#3A4462;text-align:left}
-  .cp-tip{margin-top:auto;padding:12px 16px;background:rgba(52,211,153,.04);border-top:1px solid rgba(52,211,153,.08);font-size:12px;color:#3A6A50;line-height:1.5}
-  /* TOPICS */
-  .topics-panel{flex:1;background:#07091A;overflow-y:auto;padding:24px}
-  .topics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;margin-top:16px}
-  .topic-chip{display:flex;align-items:center;gap:9px;padding:12px 11px;background:rgba(10,15,28,.8);border:1.5px solid rgba(255,255,255,.07);border-radius:13px;cursor:pointer;color:#C5CCDC;width:100%;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px}
-  .topic-chip:hover{background:rgba(52,211,153,.07);border-color:rgba(52,211,153,.3);color:white}
-  .topic-emoji{font-size:20px;flex-shrink:0}
-  /* QUESTIONS */
-  .q-list{display:flex;flex-direction:column;gap:9px;margin-top:14px}
-  .q-card{display:flex;align-items:flex-start;gap:12px;padding:14px;background:rgba(10,15,28,.8);border:2px solid rgba(255,255,255,.06);border-radius:13px;cursor:pointer;transition:all .15s}
-  .q-card.active{border-color:#34D399;background:rgba(52,211,153,.05)}
-  .q-num{min-width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#4A5A7A;flex-shrink:0;font-family:'Syne',sans-serif}
-  .q-card.active .q-num{background:#34D399;color:#030A08}
-  .q-text{font-size:14px;line-height:1.55;color:#B5BCCC;padding-top:2px}
-  .q-card.active .q-text{color:white}
-  .q-highlight{background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.15);border-radius:14px;padding:18px;margin-top:14px}
-  .q-hl-num{font-size:11px;font-weight:700;color:#34D399;margin-bottom:6px;font-family:'Syne',sans-serif}
-  .q-hl-text{font-size:16px;font-weight:600;line-height:1.5;color:#E8EDF8;font-family:'Syne',sans-serif}
-  .q-nav{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
-  .q-nav-btn{padding:8px 16px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.09);border-radius:9px;color:#5A6A8C;cursor:pointer;font-family:'Syne',sans-serif;font-size:12px;font-weight:600;transition:all .15s}
-  .q-nav-btn:hover:not(:disabled){color:white;border-color:rgba(255,255,255,.25)}
-  .q-nav-btn:disabled{opacity:.3;cursor:not-allowed}
-  .q-dots{display:flex;gap:6px}
-  .qdot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.1);cursor:pointer;transition:all .15s}
-  .qdot.on{background:#34D399;transform:scale(1.3)}
-  .qdot.done{background:rgba(52,211,153,.4)}
-  /* WORD HELPER */
-  .helper-panel{background:rgba(10,15,28,.6);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px;margin-top:14px}
-  .helper-title{font-size:11px;font-weight:700;color:#34D399;margin-bottom:10px;font-family:'Syne',sans-serif}
-  .helper-section{margin-bottom:10px}
-  .helper-section-title{font-size:10px;font-weight:700;color:#4B5A7A;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;font-family:'Syne',sans-serif}
-  .phrase{display:inline-block;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:3px 8px;font-size:12px;color:#9BA3BF;margin:2px}
-  /* TIMER */
-  .session-timer{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.15);border-radius:12px;padding:12px 16px;margin-top:14px;text-align:center}
-  .session-timer-label{font-size:10px;color:#6A9ACA;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;font-family:'Syne',sans-serif}
-  .session-timer-time{font-size:24px;font-weight:300;color:#93C5FD;letter-spacing:2px;font-family:'Syne',sans-serif}
-  /* SPINNER */
-  .spinner{width:32px;height:32px;border:2.5px solid rgba(52,211,153,.2);border-top-color:#34D399;border-radius:50%;animation:spin .75s linear infinite;margin:0 auto}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .loading{text-align:center;padding:50px 0;color:#3A4462}
-  /* BACK BTN */
-  .back-btn{background:none;border:none;color:#34D399;cursor:pointer;font-size:13px;padding:0;font-family:'Plus Jakarta Sans',sans-serif;font-weight:500;margin-bottom:14px;display:block}
-  .back-btn:hover{text-decoration:underline}
-  /* TIMER ENDED */
-  .timer-ended{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:12px;padding:14px;margin-top:12px;text-align:center;font-size:13px;color:#FCD34D}
-  @media(max-width:768px){
-    #page-active{flex-direction:column}
-    .call-panel{width:100%;min-width:unset;border-right:none;border-bottom:1px solid rgba(255,255,255,.06)}
-    .topics-panel{min-height:60vh}
-  }
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
+
+/* ── RESET & BASE ─────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#060A15;color:#E8EDF8;font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+h1,h2,h3,strong,.syne{font-family:'Syne',sans-serif}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select{font-family:inherit}
+
+/* ── CSS VARS ─────────────────────────────────── */
+:root{
+  --green:#34D399;--green-dark:#059669;--green-dim:rgba(52,211,153,.12);
+  --red:#EF4444;--red-dim:rgba(239,68,68,.1);
+  --blue:#3B82F6;--blue-dim:rgba(59,130,246,.08);
+  --amber:#F59E0B;
+  --bg:#060A15;--bg2:#07091A;--bg3:rgba(10,15,28,.97);
+  --border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.05);
+  --text-muted:#3A4462;--text-dim:#6B7A9C;--text-mid:#9BA3BF;
+  --radius:12px;--radius-lg:20px;
+  --shadow:0 40px 100px rgba(0,0,0,.6);
+}
+
+/* ── PAGES ────────────────────────────────────── */
+.page{min-height:100vh;display:none}
+.page.active{display:flex}
+.center{align-items:center;justify-content:center}
+
+/* ── CARD ─────────────────────────────────────── */
+.card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:24px;padding:40px 36px;width:440px;max-width:94vw;
+  box-shadow:var(--shadow);
+  animation:cardIn .4s cubic-bezier(.22,.68,0,1.2) both;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
+
+/* ── LOGO ─────────────────────────────────────── */
+.logo{text-align:center;margin-bottom:28px}
+.logo-icon{font-size:52px;display:block;margin-bottom:8px;filter:drop-shadow(0 0 20px rgba(52,211,153,.4))}
+.logo-title{font-size:30px;font-weight:800;color:var(--green);letter-spacing:-1px}
+.logo-sub{color:var(--text-muted);font-size:13px;margin-top:6px}
+
+/* ── FORM ELEMENTS ────────────────────────────── */
+.field{margin-bottom:20px}
+.label{display:block;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;font-family:'Syne',sans-serif}
+input,select{
+  width:100%;background:rgba(255,255,255,.04);
+  border:1.5px solid rgba(255,255,255,.09);
+  border-radius:10px;padding:12px 14px;color:#E8EDF8;font-size:14px;outline:none;
+  transition:border-color .15s, box-shadow .15s;
+}
+input:focus,select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(52,211,153,.1)}
+input::placeholder{color:var(--text-muted)}
+select option{background:#0D1526}
+
+/* ── BUTTONS ──────────────────────────────────── */
+.btn{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,var(--green),var(--green-dark));
+  border-radius:var(--radius);color:#030A08;
+  font-family:'Syne',sans-serif;font-size:15px;font-weight:700;
+  transition:all .15s;position:relative;overflow:hidden;
+}
+.btn::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,0);transition:background .15s}
+.btn:hover:not(:disabled)::after{background:rgba(255,255,255,.08)}
+.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 28px rgba(52,211,153,.3)}
+.btn:active:not(:disabled){transform:translateY(0)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-danger{background:linear-gradient(135deg,#EF4444,#DC2626);color:white}
+.btn-danger:hover:not(:disabled){box-shadow:0 8px 28px rgba(239,68,68,.3)}
+.btn-sm{padding:9px 18px;font-size:13px;width:auto;border-radius:10px}
+.btn-ghost{background:rgba(255,255,255,.06);border:1px solid var(--border);color:#E8EDF8;font-family:'Syne',sans-serif;font-weight:700}
+.btn-ghost:hover:not(:disabled){background:rgba(255,255,255,.1)}
+
+/* ── ALERTS ───────────────────────────────────── */
+.err{background:var(--red-dim);border:1px solid rgba(239,68,68,.25);color:#FCA5A5;font-size:13px;padding:10px 14px;border-radius:10px;margin-bottom:14px;display:none}
+.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#FCD34D;font-size:13px;padding:10px 14px;border-radius:10px;margin-bottom:14px;display:none}
+
+/* ── TOPBAR ───────────────────────────────────── */
+.topbar{
+  padding:12px 24px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border2);background:rgba(6,10,21,.95);
+  position:sticky;top:0;z-index:20;backdrop-filter:blur(12px);
+}
+.tb-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--green)}
+.online-pill{
+  background:var(--green-dim);border:1px solid rgba(52,211,153,.2);
+  color:var(--green);font-size:12px;font-weight:600;
+  padding:4px 12px;border-radius:20px;transition:all .3s;
+}
+.me-pill{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.06);border:1px solid var(--border);
+  border-radius:20px;padding:5px 14px;font-size:14px;
+}
+.lvl-tag{font-family:'Syne',sans-serif;font-weight:700;font-size:11px;padding:3px 8px;border-radius:6px}
+
+/* ── LOBBY ────────────────────────────────────── */
+.lobby-body{padding:24px 28px;flex:1}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.user-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.ucard{
+  background:rgba(10,15,28,.8);border:1.5px solid rgba(255,255,255,.07);
+  border-radius:18px;padding:20px 16px;
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+  transition:all .2s;position:relative;overflow:hidden;
+}
+.ucard::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 0%,rgba(52,211,153,.05) 0%,transparent 70%);
+  opacity:0;transition:opacity .2s;
+}
+.ucard.available:hover{border-color:rgba(52,211,153,.35);transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.4)}
+.ucard.available:hover::before{opacity:1}
+.ucard.busy{opacity:.4}
+.avatar{
+  width:56px;height:56px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:17px;
+  color:rgba(255,255,255,.9);position:relative;
+}
+.sdot{position:absolute;bottom:1px;right:1px;width:13px;height:13px;border-radius:50%;border:2.5px solid #060A15}
+.uname{font-weight:600;font-size:14px}
+.ustat{font-size:12px;color:var(--text-muted)}
+
+/* ── CALL OVERLAY ─────────────────────────────── */
+.call-overlay{
+  position:fixed;inset:0;background:rgba(6,10,21,.97);z-index:100;
+  display:none;align-items:center;justify-content:center;
+  flex-direction:column;gap:16px;text-align:center;
+  animation:overlayIn .25s ease both;backdrop-filter:blur(8px);
+}
+.call-overlay.show{display:flex}
+@keyframes overlayIn{from{opacity:0}to{opacity:1}}
+.call-avatar{
+  width:90px;height:90px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:24px;
+  color:rgba(255,255,255,.9);margin:0 auto;position:absolute;inset:0;
+}
+.ripple-wrap{position:relative;width:90px;height:90px;margin:0 auto}
+.ripple{
+  position:absolute;inset:0;border-radius:50%;
+  border:2px solid rgba(52,211,153,.35);
+  animation:ripple 2s ease-out infinite;
+}
+.ripple2{animation-delay:.7s;border-color:rgba(52,211,153,.2)}
+.ripple3{animation-delay:1.4s;border-color:rgba(52,211,153,.1)}
+@keyframes ripple{0%{transform:scale(.85);opacity:1}100%{transform:scale(2.6);opacity:0}}
+.overlay-timeout{font-size:12px;color:var(--text-muted);margin-top:-8px}
+
+/* ── ACTIVE CALL LAYOUT ───────────────────────── */
+#page-active{flex-direction:row}
+.call-panel{
+  width:280px;min-width:260px;
+  background:rgba(6,10,21,.98);border-right:1px solid var(--border2);
+  display:flex;flex-direction:column;overflow-y:auto;
+}
+.cp-sec{padding:16px;border-bottom:1px solid var(--border2)}
+.cp-label{
+  font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:#1E2A3A;margin-bottom:10px;font-family:'Syne',sans-serif;
+}
+.participants{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.ptcp{display:flex;flex-direction:column;align-items:center;gap:4px}
+.ptcp-av{
+  width:46px;height:46px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:13px;
+  color:rgba(255,255,255,.9);transition:all .3s;
+}
+.ptcp-av.speaking{box-shadow:0 0 0 3px var(--green),0 0 0 6px rgba(52,211,153,.2)}
+.ptcp-name{font-size:10px;color:var(--text-dim);max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.call-timer{text-align:center;font-size:28px;font-weight:300;color:var(--green);letter-spacing:3px;font-family:'Syne',sans-serif}
+.conn-state{text-align:center;font-size:11px;font-weight:600;margin:4px 0 6px}
+
+/* ── WAVEFORM ─────────────────────────────────── */
+.waveform{display:flex;align-items:center;justify-content:center;gap:3px;height:28px}
+.wbar{width:3px;border-radius:3px;background:rgba(52,211,153,.15);height:4px;transition:background .3s}
+.wbar.active{animation:wb .6s ease-in-out infinite alternate;background:var(--green)}
+@keyframes wb{0%{height:4px;opacity:.4}100%{height:22px;opacity:1}}
+
+/* ── CONTROLS ─────────────────────────────────── */
+.ctrl{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+  border-radius:11px;width:100%;color:white;
+  margin-bottom:7px;transition:all .15s;
+}
+.ctrl:hover{background:rgba(255,255,255,.07);transform:translateX(2px)}
+.ctrl-icon{font-size:18px}
+.ctrl-label{font-size:12px;font-weight:600;font-family:'Syne',sans-serif;text-align:left}
+.ctrl-sub{font-size:10px;color:var(--text-muted);text-align:left}
+.ctrl.muted{background:var(--red-dim);border-color:rgba(239,68,68,.2)}
+
+/* ── SESSION TIMER ────────────────────────────── */
+.session-timer{
+  background:var(--blue-dim);border:1px solid rgba(59,130,246,.15);
+  border-radius:var(--radius);padding:12px 16px;margin-top:14px;text-align:center;
+  transition:all .5s;
+}
+.session-timer.warning{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.2)}
+.session-timer.critical{background:var(--red-dim);border-color:rgba(239,68,68,.2);animation:pulse 1s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+.session-timer-label{font-size:10px;color:#6A9ACA;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;font-family:'Syne',sans-serif}
+.session-timer-time{font-size:24px;font-weight:300;color:#93C5FD;letter-spacing:2px;font-family:'Syne',sans-serif}
+.session-timer.warning .session-timer-time{color:var(--amber)}
+.session-timer.critical .session-timer-time{color:var(--red)}
+.timer-ended{
+  background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);
+  border-radius:var(--radius);padding:14px;margin-top:12px;
+  text-align:center;font-size:13px;color:#FCD34D;display:none;
+}
+
+/* ── TOPICS PANEL ─────────────────────────────── */
+.topics-panel{flex:1;background:var(--bg2);overflow-y:auto;padding:24px}
+.topics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:9px;margin-top:16px}
+.topic-chip{
+  display:flex;align-items:center;gap:9px;
+  padding:12px 11px;
+  background:rgba(10,15,28,.8);border:1.5px solid rgba(255,255,255,.07);
+  border-radius:13px;color:#C5CCDC;width:100%;transition:all .15s;font-size:13px;
+  text-align:left;
+}
+.topic-chip:hover{background:rgba(52,211,153,.07);border-color:rgba(52,211,153,.3);color:white;transform:translateX(2px)}
+.topic-emoji{font-size:20px;flex-shrink:0}
+
+/* ── QUESTIONS ────────────────────────────────── */
+.q-list{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+.q-card{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:14px;background:rgba(10,15,28,.8);
+  border:2px solid rgba(255,255,255,.06);border-radius:13px;
+  cursor:pointer;transition:all .15s;
+}
+.q-card:hover{border-color:rgba(52,211,153,.2);background:rgba(52,211,153,.03)}
+.q-card.active{border-color:var(--green);background:rgba(52,211,153,.05)}
+.q-num{
+  min-width:26px;height:26px;border-radius:50%;
+  background:rgba(255,255,255,.07);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:12px;color:#4A5A7A;flex-shrink:0;font-family:'Syne',sans-serif;
+  transition:all .15s;
+}
+.q-card.active .q-num{background:var(--green);color:#030A08}
+.q-text{font-size:14px;line-height:1.55;color:#B5BCCC;padding-top:2px}
+.q-card.active .q-text{color:white}
+.q-highlight{
+  background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.15);
+  border-radius:14px;padding:18px;margin-top:14px;
+}
+.q-hl-num{font-size:11px;font-weight:700;color:var(--green);margin-bottom:6px;font-family:'Syne',sans-serif}
+.q-hl-text{font-size:16px;font-weight:600;line-height:1.5;color:#E8EDF8;font-family:'Syne',sans-serif}
+.q-nav{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+.q-nav-btn{
+  padding:8px 16px;background:rgba(255,255,255,.05);
+  border:1.5px solid rgba(255,255,255,.09);border-radius:9px;
+  color:#5A6A8C;cursor:pointer;font-family:'Syne',sans-serif;font-size:12px;font-weight:600;
+  transition:all .15s;
+}
+.q-nav-btn:hover:not(:disabled){color:white;border-color:rgba(255,255,255,.25)}
+.q-nav-btn:disabled{opacity:.3;cursor:not-allowed}
+.q-dots{display:flex;gap:6px;align-items:center}
+.qdot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.1);cursor:pointer;transition:all .2s}
+.qdot.on{background:var(--green);transform:scale(1.4)}
+.qdot.done{background:rgba(52,211,153,.4)}
+
+/* ── WORD HELPER ──────────────────────────────── */
+.helper-panel{background:rgba(10,15,28,.6);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px;margin-top:14px}
+.helper-title{font-size:11px;font-weight:700;color:var(--green);margin-bottom:10px;font-family:'Syne',sans-serif}
+.helper-section{margin-bottom:10px}
+.helper-section-title{font-size:10px;font-weight:700;color:#4B5A7A;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;font-family:'Syne',sans-serif}
+.phrase{
+  display:inline-block;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);border-radius:6px;
+  padding:3px 8px;font-size:12px;color:#9BA3BF;margin:2px;
+  cursor:pointer;transition:all .15s;
+}
+.phrase:hover{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.3);color:white}
+
+/* ── SPINNER ──────────────────────────────────── */
+.spinner{
+  width:32px;height:32px;border:2.5px solid rgba(52,211,153,.2);
+  border-top-color:var(--green);border-radius:50%;
+  animation:spin .75s linear infinite;margin:0 auto;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading{text-align:center;padding:50px 0;color:var(--text-muted)}
+
+/* ── BACK BTN ─────────────────────────────────── */
+.back-btn{
+  background:none;border:none;color:var(--green);cursor:pointer;
+  font-size:13px;padding:0;font-weight:500;margin-bottom:14px;display:flex;
+  align-items:center;gap:4px;transition:gap .15s;
+}
+.back-btn:hover{gap:8px}
+
+/* ── TOAST ────────────────────────────────────── */
+#toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:rgba(10,15,28,.98);border:1px solid var(--border);
+  border-radius:12px;padding:12px 20px;font-size:13px;font-weight:500;
+  z-index:9999;transition:transform .3s cubic-bezier(.22,.68,0,1.2);
+  white-space:nowrap;box-shadow:0 20px 60px rgba(0,0,0,.5);
+  pointer-events:none;
+}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.success{border-color:rgba(52,211,153,.3);color:var(--green)}
+#toast.error{border-color:rgba(239,68,68,.3);color:#FCA5A5}
+#toast.info{border-color:rgba(59,130,246,.3);color:#93C5FD}
+
+/* ── RECONNECT BANNER ─────────────────────────── */
+#reconnect-banner{
+  display:none;position:fixed;top:0;left:0;right:0;z-index:50;
+  background:rgba(245,158,11,.12);border-bottom:1px solid rgba(245,158,11,.25);
+  padding:10px 20px;text-align:center;font-size:13px;color:#FCD34D;font-weight:600;
+}
+#reconnect-banner.show{display:block}
+
+/* ── PERMISSION ERROR ─────────────────────────── */
+.perm-error{
+  background:var(--red-dim);border:1px solid rgba(239,68,68,.2);
+  border-radius:14px;padding:20px;text-align:center;margin:20px 0;
+}
+.perm-error-icon{font-size:32px;margin-bottom:8px}
+.perm-error-title{font-weight:700;color:#FCA5A5;margin-bottom:6px;font-family:'Syne',sans-serif}
+.perm-error-sub{font-size:13px;color:#F87171;line-height:1.5}
+
+/* ── HINT BOX ─────────────────────────────────── */
+.hint-box{
+  background:var(--blue-dim);border:1px solid rgba(59,130,246,.12);
+  border-radius:var(--radius);padding:14px;font-size:12px;color:#4A6A9A;line-height:1.6;
+}
+.cp-tip{
+  margin-top:auto;padding:12px 16px;
+  background:rgba(52,211,153,.04);border-top:1px solid rgba(52,211,153,.08);
+  font-size:12px;color:#3A6A50;line-height:1.5;
+}
+
+/* ── TAGS ─────────────────────────────────────── */
+.badge-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.badge{
+  font-size:11px;padding:5px 12px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+  border-radius:20px;color:#5A6A8C;
+}
+
+/* ── RESPONSIVE ───────────────────────────────── */
+@media(max-width:768px){
+  #page-active{flex-direction:column}
+  .call-panel{width:100%;min-width:unset;border-right:none;border-bottom:1px solid var(--border2)}
+  .topics-panel{min-height:60vh}
+  .card{padding:28px 20px}
+}
 </style>
 </head>
 <body>
 
-<!-- ═══════════ PAGE 1: LOGIN ═══════════ -->
+<!-- ═══════════════════════════════════════════
+     RECONNECT BANNER
+════════════════════════════════════════════ -->
+<div id="reconnect-banner">⚠️ Connection lost — attempting to reconnect… <span id="reconnect-count"></span></div>
+
+<!-- ═══════════════════════════════════════════
+     TOAST
+════════════════════════════════════════════ -->
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE 1: LOGIN
+════════════════════════════════════════════ -->
 <div id="page-login" class="page active center" style="padding:20px">
   <div class="card">
     <div class="logo">
@@ -135,12 +384,14 @@
       <h1 class="logo-title">SpeakUp</h1>
       <p class="logo-sub">Find your English speaking partner instantly</p>
     </div>
+    <div id="login-warn" class="warn"></div>
+    <div id="login-err" class="err"></div>
     <div class="field">
-      <label class="label">Your Name</label>
-      <input type="text" id="inp-username" placeholder="Enter your name..." maxlength="20"/>
+      <label class="label" for="inp-username">Your Name</label>
+      <input type="text" id="inp-username" placeholder="Enter your name…" maxlength="20" autocomplete="off" spellcheck="false"/>
     </div>
     <div class="field">
-      <label class="label">English Level</label>
+      <label class="label" for="inp-level">English Level</label>
       <select id="inp-level">
         <option value="A1">A1 — Beginner</option>
         <option value="A2" selected>A2 — Elementary</option>
@@ -150,17 +401,18 @@
         <option value="C2">C2 — Mastery</option>
       </select>
     </div>
-    <div id="login-err" class="err" style="display:none"></div>
     <button class="btn" id="btn-join">Join Speaking Room →</button>
-    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:18px">
-      <span style="font-size:11px;padding:5px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:20px;color:#5A6A8C">🎙️ Voice Chat</span>
-      <span style="font-size:11px;padding:5px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:20px;color:#5A6A8C">🤖 AI Topics</span>
-      <span style="font-size:11px;padding:5px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:20px;color:#5A6A8C">📚 Guided Questions</span>
+    <div class="badge-row">
+      <span class="badge">🎙️ Voice Chat</span>
+      <span class="badge">🤖 AI Topics</span>
+      <span class="badge">📚 Guided Questions</span>
     </div>
   </div>
 </div>
 
-<!-- ═══════════ PAGE 2: LOBBY ═══════════ -->
+<!-- ═══════════════════════════════════════════
+     PAGE 2: LOBBY
+════════════════════════════════════════════ -->
 <div id="page-lobby" class="page" style="flex-direction:column">
   <header class="topbar">
     <div style="display:flex;align-items:center;gap:14px">
@@ -168,43 +420,55 @@
       <div class="online-pill" id="online-count">🟢 0 online</div>
     </div>
     <div class="me-pill">
-      <span id="me-name">-</span>
-      <span class="lvl-tag" id="me-level" style="background:#34D399;color:#050912">A2</span>
+      <span id="me-name">–</span>
+      <span class="lvl-tag" id="me-level" style="background:var(--green);color:#050912">A2</span>
     </div>
   </header>
   <div class="lobby-body">
-    <h2 style="font-size:20px;font-weight:800">Speaking Partners</h2>
+    <div class="section-header">
+      <h2 style="font-size:20px;font-weight:800">Speaking Partners</h2>
+    </div>
     <div class="user-grid" id="user-grid">
-      <div class="loading"><div class="spinner"></div><p style="margin-top:12px">Loading users...</p></div>
+      <div class="loading"><div class="spinner"></div><p style="margin-top:12px">Loading users…</p></div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════ CALL OUT OVERLAY ═══════════ -->
+<!-- ═══════════════════════════════════════════
+     CALL-OUT OVERLAY
+════════════════════════════════════════════ -->
 <div class="call-overlay" id="overlay-out">
   <div class="ripple-wrap">
-    <div class="ripple"></div><div class="ripple ripple2"></div>
-    <div class="call-avatar" id="out-avatar" style="background:#1E3A8A;position:absolute;inset:0;width:90px;height:90px">??</div>
+    <div class="ripple"></div>
+    <div class="ripple ripple2"></div>
+    <div class="ripple ripple3"></div>
+    <div class="call-avatar" id="out-avatar" style="background:#1E3A8A">??</div>
   </div>
-  <h2 style="font-size:24px;font-weight:800" id="out-name">-</h2>
-  <p style="color:#34D399;font-weight:500">Calling...</p>
-  <p style="color:#3A4462;font-size:13px">Waiting for them to accept</p>
+  <h2 style="font-size:24px;font-weight:800" id="out-name">–</h2>
+  <p style="color:var(--green);font-weight:500">Calling…</p>
+  <p class="overlay-timeout" id="out-timeout-label">Cancelling in 30s</p>
   <button class="btn btn-danger btn-sm" onclick="cancelCall()">✕ Cancel</button>
 </div>
 
-<!-- ═══════════ CALL IN OVERLAY ═══════════ -->
+<!-- ═══════════════════════════════════════════
+     CALL-IN OVERLAY
+════════════════════════════════════════════ -->
 <div class="call-overlay" id="overlay-in">
-  <p style="color:#34D399;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase">📞 Incoming Call</p>
-  <div class="call-avatar" id="in-avatar" style="background:#065F46;margin:0 auto">??</div>
-  <h2 style="font-size:24px;font-weight:800" id="in-name">-</h2>
-  <span class="lvl-tag" id="in-level" style="background:#34D399;color:#050912">A2</span>
+  <p style="color:var(--green);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase">📞 Incoming Call</p>
+  <div style="position:relative;width:90px;height:90px;margin:0 auto">
+    <div class="call-avatar" id="in-avatar" style="background:#065F46;position:absolute;inset:0">??</div>
+  </div>
+  <h2 style="font-size:24px;font-weight:800" id="in-name">–</h2>
+  <span class="lvl-tag" id="in-level" style="background:var(--green);color:#050912">A2</span>
   <div style="display:flex;gap:14px;margin-top:8px">
     <button class="btn btn-danger btn-sm" onclick="declineCall()">✕ Decline</button>
     <button class="btn btn-sm" onclick="acceptCall()">✓ Accept</button>
   </div>
 </div>
 
-<!-- ═══════════ PAGE 3: ACTIVE CALL ═══════════ -->
+<!-- ═══════════════════════════════════════════
+     PAGE 3: ACTIVE CALL
+════════════════════════════════════════════ -->
 <div id="page-active" class="page">
   <audio id="remote-audio" autoplay playsinline style="display:none"></audio>
 
@@ -215,18 +479,18 @@
       <div class="participants">
         <div class="ptcp">
           <div class="ptcp-av" id="my-av" style="background:#065F46">ME</div>
-          <span class="ptcp-name" id="my-ptcp-name">-</span>
+          <span class="ptcp-name" id="my-ptcp-name">–</span>
           <span id="my-mic-icon" style="font-size:14px">🎙️</span>
         </div>
         <span style="color:#1E2A3A;font-size:11px;font-weight:700">VS</span>
         <div class="ptcp">
           <div class="ptcp-av" id="partner-av" style="background:#1E3A8A">??</div>
-          <span class="ptcp-name" id="partner-ptcp-name">-</span>
+          <span class="ptcp-name" id="partner-ptcp-name">–</span>
           <span style="font-size:14px">🎙️</span>
         </div>
       </div>
       <div class="call-timer" id="call-timer">00:00</div>
-      <div class="conn-state" id="conn-state" style="color:#F59E0B">Connecting...</div>
+      <div class="conn-state" id="conn-state" style="color:var(--amber)">Connecting…</div>
       <div class="waveform" id="waveform">
         <div class="wbar" style="animation-delay:0s"></div>
         <div class="wbar" style="animation-delay:.06s"></div>
@@ -249,33 +513,33 @@
         <span class="ctrl-icon">🎙️</span>
         <div><div class="ctrl-label">Mute</div><div class="ctrl-sub">Mic is on</div></div>
       </button>
-      <button class="ctrl" onclick="endCall()" style="border-color:rgba(239,68,68,.1)">
+      <button class="ctrl" onclick="endCall()" style="border-color:rgba(239,68,68,.15)">
         <span class="ctrl-icon">📵</span>
-        <div><div class="ctrl-label" style="color:#EF4444">End Call</div><div class="ctrl-sub">Leave conversation</div></div>
+        <div><div class="ctrl-label" style="color:var(--red)">End Call</div><div class="ctrl-sub">Leave conversation</div></div>
       </button>
     </div>
 
     <div class="cp-sec">
       <p class="cp-label">SESSION TIMER</p>
-      <div class="session-timer">
+      <div class="session-timer" id="session-timer-box">
         <div class="session-timer-label">Time Remaining</div>
         <div class="session-timer-time" id="session-timer">05:00</div>
       </div>
-      <div class="timer-ended" id="timer-ended" style="display:none">
-        ⏰ Time is over! You can continue or choose another partner.
+      <div class="timer-ended" id="timer-ended">
+        ⏰ Time's up! You can keep going or find another partner.
       </div>
     </div>
 
-    <div class="cp-tip">💡 Choose a topic on the right and practice speaking in English!</div>
+    <div class="cp-tip">💡 Pick a topic on the right and practice speaking in English!</div>
   </div>
 
   <!-- RIGHT: Topics Panel -->
   <div class="topics-panel" id="topics-panel">
     <div id="topics-view">
       <h2 style="font-size:20px;font-weight:800">🎯 Choose a Topic</h2>
-      <p style="color:#3A4462;font-size:13px;margin-top:6px">AI-generated topics for your level</p>
+      <p style="color:var(--text-muted);font-size:13px;margin-top:6px">AI-generated topics for your level</p>
       <div id="topics-content">
-        <div class="loading" style="margin-top:30px"><div class="spinner"></div><p style="margin-top:12px">Generating topics...</p></div>
+        <div class="loading" style="margin-top:30px"><div class="spinner"></div><p style="margin-top:12px">Generating topics…</p></div>
       </div>
     </div>
 
@@ -284,15 +548,13 @@
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
         <span id="sel-topic-emoji" style="font-size:42px">🍳</span>
         <div>
-          <h2 style="font-size:20px;font-weight:800" id="sel-topic-name">-</h2>
-          <p style="color:#3A4462;font-size:13px;margin-top:4px">5 open-ended questions</p>
+          <h2 style="font-size:20px;font-weight:800" id="sel-topic-name">–</h2>
+          <p style="color:var(--text-muted);font-size:13px;margin-top:4px">5 open-ended questions</p>
         </div>
       </div>
-
       <div id="questions-content">
-        <div class="loading"><div class="spinner"></div><p style="margin-top:12px">Generating questions...</p></div>
+        <div class="loading"><div class="spinner"></div><p style="margin-top:12px">Generating questions…</p></div>
       </div>
-
       <!-- Word Helper -->
       <div class="helper-panel" style="margin-top:16px">
         <div class="helper-title">💬 Speaking Word Helper</div>
@@ -322,14 +584,36 @@
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════════ -->
 <script>
+'use strict';
+
 // ════════════════════════════════════════════════
-// CONFIG
+// CONFIG  (replace with your own keys)
 // ════════════════════════════════════════════════
-const API_KEY  = "AIzaSyCsFU6h2Mi-ybuft-fISR7zGCJC4XgPPCo";
-const DB_URL   = "https://speakupneu-default-rtdb.europe-west1.firebasedatabase.app";
-const AUTH_URL = "https://identitytoolkit.googleapis.com/v1";
-const ICE_CFG  = { iceServers:[{urls:["stun:stun1.l.google.com:19302","stun:stun2.l.google.com:19302"]}] };
+const API_KEY = "AIzaSyCsFU6h2Mi-ybuft-fISR7zGCJC4XgPPCo";
+const DB_URL  = "https://speakupneu-default-rtdb.europe-west1.firebasedatabase.app";
+const AUTH_URL= "https://identitytoolkit.googleapis.com/v1";
+
+// ICE: STUN (free) + optional TURN
+// For production add a TURN server e.g. from metered.ca (free tier)
+const ICE_CFG = {
+  iceServers:[
+    {urls:"stun:stun.relay.metered.ca:80"},
+    {urls:"stun:stun1.l.google.com:19302"},
+    {urls:"turn:global.relay.metered.ca:80",username:"14f012865e60a313a6be06a8",credential:"2w6B/Le+TlEs8uRI"},
+    {urls:"turn:global.relay.metered.ca:80?transport=tcp",username:"14f012865e60a313a6be06a8",credential:"2w6B/Le+TlEs8uRI"},
+    {urls:"turn:global.relay.metered.ca:443",username:"14f012865e60a313a6be06a8",credential:"2w6B/Le+TlEs8uRI"},
+    {urls:"turns:global.relay.metered.ca:443?transport=tcp",username:"14f012865e60a313a6be06a8",credential:"2w6B/Le+TlEs8uRI"},
+  ]
+};
+
+const CALL_TIMEOUT_MS = 30_000; // 30s unanswered → auto-cancel
+const HEARTBEAT_MS    = 8_000;  // presence heartbeat
+const SESSION_SECS    = 300;    // 5 min session
+const MAX_RECONNECT   = 3;
 
 const LC = {A1:"#10B981",A2:"#34D399",B1:"#3B82F6",B2:"#8B5CF6",C1:"#F59E0B",C2:"#EF4444"};
 const LB = {A1:"#064E3B",A2:"#065F46",B1:"#1E3A8A",B2:"#4C1D95",C1:"#78350F",C2:"#7F1D1D"};
@@ -354,23 +638,57 @@ let TOKEN=null, MY_UID=null, MY_NAME="", MY_LEVEL="A2";
 let partnerData=null, callId=null, pc=null;
 let localStream=null, isMuted=false;
 let callTimerInt=null, callSecs=0;
-let sessionTimerInt=null, sessionSecs=300;
+let sessionTimerInt=null, sessionSecs=SESSION_SECS;
 let pollInts=[];
 let activeQ=0, questions=[];
+let isInCall=false, isProcessingCall=false; // race-condition guards
+let callTimeoutTimer=null;
+let heartbeatInt=null;
+let reconnectAttempt=0;
+let toastTimer=null;
+
+// ════════════════════════════════════════════════
+// SECURITY: XSS-safe text setter
+// ════════════════════════════════════════════════
+function safeText(el, text){
+  if(typeof el==='string') el=document.getElementById(el);
+  if(el) el.textContent=String(text||'');
+}
+
+// ════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════
+function toast(msg, type='info', duration=3000){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.className='show '+type;
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.className='',duration);
+}
 
 // ════════════════════════════════════════════════
 // FIREBASE REST
 // ════════════════════════════════════════════════
-const fb = {
+const fb={
+  async req(method,path,body){
+    const url=`${DB_URL}/${path}.json${TOKEN?`?auth=${TOKEN}`:''}`;
+    const opts={method,headers:{"Content-Type":"application/json"}};
+    if(body!==undefined) opts.body=JSON.stringify(body);
+    const r=await fetch(url,opts);
+    if(!r.ok) throw new Error(`Firebase ${method} ${path}: ${r.status}`);
+    return r.json();
+  },
   async login(){
     const r=await fetch(`${AUTH_URL}/accounts:signUp?key=${API_KEY}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({returnSecureToken:true})});
-    const d=await r.json(); if(d.error) throw new Error(d.error.message);
+    const d=await r.json();
+    if(d.error) throw new Error(d.error.message);
     TOKEN=d.idToken; MY_UID=d.localId; return d.localId;
   },
-  async set(p,v){return fetch(`${DB_URL}/${p}.json?auth=${TOKEN}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(v)});},
-  async get(p){const r=await fetch(`${DB_URL}/${p}.json?auth=${TOKEN}`);return r.json();},
-  async push(p,v){const r=await fetch(`${DB_URL}/${p}.json?auth=${TOKEN}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(v)});const d=await r.json();return d.name;},
-  async del(p){return fetch(`${DB_URL}/${p}.json?auth=${TOKEN}`,{method:"DELETE"});}
+  set:(p,v)=>fb.req("PUT",p,v),
+  get:(p)=>fb.req("GET",p,undefined),
+  push:async(p,v)=>{const d=await fb.req("POST",p,v);return d.name;},
+  del:(p)=>fb.req("DELETE",p,undefined),
+  update:(p,v)=>fb.req("PATCH",p,v),
 };
 
 // ════════════════════════════════════════════════
@@ -378,10 +696,23 @@ const fb = {
 // ════════════════════════════════════════════════
 async function askClaude(prompt){
   try{
-    const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,messages:[{role:"user",content:prompt}]})});
+    const r=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:800,
+        messages:[{role:"user",content:prompt}]
+      })
+    });
+    if(!r.ok) return null;
     const d=await r.json();
-    return JSON.parse(d.content[0].text.trim().replace(/```json|```/g,"").trim());
-  }catch(e){return null;}
+    const text=(d.content?.[0]?.text||'').trim().replace(/```json|```/g,'').trim();
+    return JSON.parse(text);
+  }catch(e){
+    console.warn('[Claude]',e);
+    return null;
+  }
 }
 
 // ════════════════════════════════════════════════
@@ -393,161 +724,365 @@ function showPage(id){
 }
 function showOverlay(id){document.getElementById(id).classList.add('show');}
 function hideOverlay(id){document.getElementById(id).classList.remove('show');}
-function ini(n){return (n||"??").slice(0,2).toUpperCase();}
-function fmtTime(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");}
+function ini(n){return String(n||'??').replace(/[<>&"']/g,'').slice(0,2).toUpperCase();}
+function fmtTime(s){return String(Math.floor(Math.max(0,s)/60)).padStart(2,"0")+":"+String(Math.max(0,s)%60).padStart(2,"0");}
 function stopPolls(){pollInts.forEach(clearInterval);pollInts=[];}
 function addPoll(fn,ms){const id=setInterval(fn,ms);pollInts.push(id);return id;}
+function showErr(msg,field='login'){
+  const el=document.getElementById(field+'-err')||document.getElementById('login-err');
+  if(el){el.textContent=msg;el.style.display='block';}
+}
+function hideErr(){['login-err','login-warn'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});}
+
+// ════════════════════════════════════════════════
+// PRESENCE / HEARTBEAT
+// ════════════════════════════════════════════════
+function startHeartbeat(){
+  stopHeartbeat();
+  heartbeatInt=setInterval(async()=>{
+    if(!MY_UID||!TOKEN) return;
+    try{
+      await fb.update(`users/${MY_UID}`,{lastSeen:Date.now()});
+    }catch(e){/* silent */}
+  },HEARTBEAT_MS);
+}
+
+function stopHeartbeat(){
+  clearInterval(heartbeatInt);heartbeatInt=null;
+}
+
+async function cleanupPresence(){
+  if(!MY_UID||!TOKEN) return;
+  try{
+    await fb.del(`users/${MY_UID}`);
+    await fb.del(`notifications/${MY_UID}`);
+  }catch(e){/* best effort */}
+}
+
+// beforeunload + visibilitychange (mobile)
+window.addEventListener('beforeunload',cleanupPresence);
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='hidden') cleanupPresence();
+});
 
 // ════════════════════════════════════════════════
 // LOGIN
 // ════════════════════════════════════════════════
-document.getElementById('btn-join').onclick = async()=>{
+document.getElementById('btn-join').onclick=async()=>{
   const name=document.getElementById('inp-username').value.trim();
   const level=document.getElementById('inp-level').value;
   if(!name){showErr("Please enter your name!");return;}
+  if(name.length<2){showErr("Name must be at least 2 characters.");return;}
+
   const btn=document.getElementById('btn-join');
-  btn.disabled=true; btn.textContent="Joining...";
+  btn.disabled=true;safeText(btn,"Joining…");
   hideErr();
+
   try{
     const uid=await fb.login();
     MY_NAME=name; MY_LEVEL=level; MY_UID=uid;
-    await fb.set(`users/${uid}`,{username:name,level,status:"available",joinedAt:Date.now()});
-    // remove on disconnect not possible with REST but we'll clean up on unload
-    window.addEventListener('beforeunload',()=>fb.del(`users/${uid}`));
-    document.getElementById('me-name').textContent=name;
+
+    await fb.set(`users/${uid}`,{
+      username:name,level,status:"available",
+      joinedAt:Date.now(),lastSeen:Date.now()
+    });
+
+    safeText('me-name',name);
     const lt=document.getElementById('me-level');
-    lt.textContent=level; lt.style.background=LC[level];
+    safeText(lt,level);
+    lt.style.background=LC[level]||LC.A2;
+    lt.style.color='#050912';
+
     showPage('page-lobby');
+    startHeartbeat();
     startLobbyPolls();
-  }catch(e){showErr("Connection error: "+e.message);btn.disabled=false;btn.textContent="Join Speaking Room →";}
+  }catch(e){
+    showErr("Connection error: "+e.message);
+    btn.disabled=false;safeText(btn,"Join Speaking Room →");
+  }
 };
 
-function showErr(msg){const el=document.getElementById('login-err');el.textContent=msg;el.style.display="block";}
-function hideErr(){document.getElementById('login-err').style.display="none";}
+document.getElementById('inp-username').addEventListener('keydown',e=>{
+  if(e.key==='Enter') document.getElementById('btn-join').click();
+});
 
 // ════════════════════════════════════════════════
 // LOBBY
 // ════════════════════════════════════════════════
 function startLobbyPolls(){
   refreshUsers();
-  addPoll(refreshUsers,3000);
-  addPoll(checkIncoming,2000);
+  addPoll(refreshUsers,4000);
+  addPoll(checkIncoming,2500);
+  addPoll(pruneGhosts,30_000); // clean stale users every 30s
 }
 
 async function refreshUsers(){
-  const data=await fb.get("users");
+  if(isInCall) return;
+  let data;
+  try{data=await fb.get("users");}catch(e){return;}
+
   const grid=document.getElementById('user-grid');
-  if(!data){grid.innerHTML='<p style="color:#3A4462;padding:40px 0;text-align:center">No users yet. Share the link with friends!</p>';return;}
+  if(!grid) return;
+
+  if(!data){
+    grid.innerHTML='<p style="color:var(--text-muted);padding:40px 0;text-align:center">No users yet. Share the link!</p>';
+    safeText('online-count','🟢 0 online');
+    return;
+  }
+
   const users=Object.entries(data).filter(([id])=>id!==MY_UID);
   const avail=users.filter(([,u])=>u.status==="available").length;
-  document.getElementById('online-count').textContent=`🟢 ${avail} online`;
-  if(users.length===0){grid.innerHTML='<div style="text-align:center;padding:60px 0;color:#3A4462"><div style="font-size:48px;margin-bottom:12px">👥</div><p>No other users yet.</p><p style="font-size:13px;margin-top:6px">Share this app with friends!</p></div>';return;}
-  grid.innerHTML=users.map(([id,u])=>`
-    <div class="ucard ${u.status}" style="cursor:${u.status==='available'?'pointer':'default'}">
-      <div class="avatar" style="background:${LB[u.level]||'#1E3A8A'}">
-        ${ini(u.username)}
-        <div class="sdot" style="background:${u.status==='available'?'#34D399':'#EF4444'}"></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:7px;margin-top:4px">
-        <span class="uname">${u.username}</span>
-        <span class="lvl-tag" style="background:${LC[u.level]||'#34D399'};color:#050912">${u.level}</span>
-      </div>
-      <p class="ustat">${u.status==='available'?'Ready to talk ✓':'In a call...'}</p>
-      <button class="btn btn-sm" style="margin-top:4px" ${u.status==='busy'?'disabled':''} onclick="sendRequest('${id}','${u.username}','${u.level}')">
-        ${u.status==='busy'?'Busy':'🎤 Connect'}
-      </button>
-    </div>
-  `).join('');
+  safeText('online-count',`🟢 ${avail} online`);
+
+  if(users.length===0){
+    grid.innerHTML='<div style="text-align:center;padding:60px 0;color:var(--text-muted)"><div style="font-size:48px;margin-bottom:12px">👥</div><p>No other users yet.</p><p style="font-size:13px;margin-top:6px">Share this link with friends!</p></div>';
+    return;
+  }
+
+  // Build cards safely (no innerHTML with user data)
+  grid.innerHTML='';
+  users.forEach(([id,u])=>{
+    const card=document.createElement('div');
+    card.className=`ucard ${u.status}`;
+    if(u.status==='available') card.style.cursor='pointer';
+
+    const av=document.createElement('div');
+    av.className='avatar';
+    av.style.background=LB[u.level]||'#1E3A8A';
+    av.textContent=ini(u.username);
+
+    const dot=document.createElement('div');
+    dot.className='sdot';
+    dot.style.background=u.status==='available'?'#34D399':'#EF4444';
+    av.appendChild(dot);
+
+    const nameRow=document.createElement('div');
+    nameRow.style.cssText='display:flex;align-items:center;gap:7px;margin-top:4px';
+    const nm=document.createElement('span');
+    nm.className='uname';nm.textContent=u.username;
+    const lv=document.createElement('span');
+    lv.className='lvl-tag';
+    lv.style.background=LC[u.level]||'#34D399';
+    lv.style.color='#050912';
+    lv.textContent=u.level;
+    nameRow.append(nm,lv);
+
+    const stat=document.createElement('p');
+    stat.className='ustat';
+    stat.textContent=u.status==='available'?'Ready to talk ✓':'In a call…';
+
+    const cbtn=document.createElement('button');
+    cbtn.className='btn btn-sm';
+    cbtn.style.marginTop='4px';
+    cbtn.disabled=u.status==='busy';
+    cbtn.textContent=u.status==='busy'?'Busy':'🎤 Connect';
+    if(u.status==='available'){
+      cbtn.onclick=(e)=>{e.stopPropagation();sendRequest(id,u.username,u.level);};
+      card.onclick=()=>sendRequest(id,u.username,u.level);
+    }
+
+    card.append(av,nameRow,stat,cbtn);
+    grid.appendChild(card);
+  });
 }
 
-async function checkIncoming(){
-  if(!MY_UID) return;
-  const n=await fb.get(`notifications/${MY_UID}`);
-  if(n?.incomingCall){
-    const c=n.incomingCall;
-    partnerData={id:c.callerId,username:c.callerName,level:c.callerLevel};
-    callId=c.callId;
-    const av=document.getElementById('in-avatar');
-    av.textContent=ini(c.callerName);
-    av.style.background=LB[c.callerLevel]||'#1E3A8A';
-    document.getElementById('in-name').textContent=c.callerName;
-    const il=document.getElementById('in-level');
-    il.textContent=c.callerLevel+" Level";
-    il.style.background=LC[c.callerLevel]||'#34D399';
-    showOverlay('overlay-in');
+// Remove users who haven't sent a heartbeat in >20s
+async function pruneGhosts(){
+  let data;
+  try{data=await fb.get("users");}catch(e){return;}
+  if(!data) return;
+  const now=Date.now();
+  for(const [id,u] of Object.entries(data)){
+    if(id===MY_UID) continue;
+    if(u.lastSeen && now-u.lastSeen>20_000){
+      try{await fb.del(`users/${id}`);}catch(e){/*ok*/}
+    }
   }
+}
+
+// ════════════════════════════════════════════════
+// INCOMING CALL CHECK
+// ════════════════════════════════════════════════
+async function checkIncoming(){
+  if(!MY_UID||isInCall||isProcessingCall) return;
+  let n;
+  try{n=await fb.get(`notifications/${MY_UID}`);}catch(e){return;}
+  if(!n?.incomingCall) return;
+
+  // Guard: don't process duplicate notifications
+  if(isProcessingCall) return;
+  isProcessingCall=true;
+
+  const c=n.incomingCall;
+  partnerData={id:c.callerId,username:c.callerName,level:c.callerLevel};
+  callId=c.callId;
+
+  const av=document.getElementById('in-avatar');
+  av.textContent=ini(c.callerName);
+  av.style.background=LB[c.callerLevel]||'#1E3A8A';
+  safeText('in-name',c.callerName);
+  const il=document.getElementById('in-level');
+  safeText(il,(c.callerLevel||'?')+' Level');
+  il.style.background=LC[c.callerLevel]||'#34D399';
+  il.style.color='#050912';
+
+  showOverlay('overlay-in');
 }
 
 // ════════════════════════════════════════════════
 // MAKE CALL
 // ════════════════════════════════════════════════
 async function sendRequest(tId,tName,tLevel){
+  if(isInCall||isProcessingCall){toast('Already in a call','error');return;}
+  isProcessingCall=true;
+
   partnerData={id:tId,username:tName,level:tLevel};
+
   const av=document.getElementById('out-avatar');
   av.textContent=ini(tName);
   av.style.background=LB[tLevel]||'#1E3A8A';
-  document.getElementById('out-name').textContent=tName;
+  safeText('out-name',tName);
   showOverlay('overlay-out');
+
+  // Call timeout
+  let timeoutSecs=30;
+  safeText('out-timeout-label',`Cancelling in ${timeoutSecs}s`);
+  const tInt=setInterval(()=>{
+    timeoutSecs--;
+    safeText('out-timeout-label',timeoutSecs>0?`Cancelling in ${timeoutSecs}s`:'Cancelling…');
+  },1000);
+  callTimeoutTimer=setTimeout(()=>{
+    clearInterval(tInt);
+    toast('No answer — call cancelled','info');
+    cancelCall();
+  },CALL_TIMEOUT_MS);
+
   try{
+    // Mic permission with friendly error
+    try{
+      localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+    }catch(permErr){
+      clearTimeout(callTimeoutTimer);clearInterval(tInt);
+      isProcessingCall=false;
+      hideOverlay('overlay-out');
+      showMicError(permErr);
+      partnerData=null;callId=null;
+      return;
+    }
+
     pc=new RTCPeerConnection(ICE_CFG);
-    localStream=await navigator.mediaDevices.getUserMedia({audio:true});
     localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
     pc.ontrack=e=>{document.getElementById('remote-audio').srcObject=e.streams[0];};
     pc.onconnectionstatechange=()=>{
       updateConnState(pc.connectionState);
-      if(['disconnected','failed','closed'].includes(pc.connectionState)) endCall();
+      if(pc.connectionState==='connected') reconnectAttempt=0;
+      if(['disconnected','failed'].includes(pc.connectionState)) handleDisconnect();
+      if(pc.connectionState==='closed') endCall();
     };
+
     const cId=await fb.push("calls",{callerId:MY_UID,calleeId:tId,status:"pending",createdAt:Date.now()});
     callId=cId;
-    pc.onicecandidate=async e=>{if(e.candidate)await fb.push(`calls/${cId}/callerCandidates`,e.candidate.toJSON());};
+
+    pc.onicecandidate=async e=>{
+      if(e.candidate) await fb.push(`calls/${cId}/callerCandidates`,e.candidate.toJSON()).catch(()=>{});
+    };
+
     const offer=await pc.createOffer();
     await pc.setLocalDescription(offer);
     await fb.set(`calls/${cId}/offer`,{sdp:offer.sdp,type:offer.type});
-    await fb.set(`notifications/${tId}/incomingCall`,{callId:cId,callerId:MY_UID,callerName:MY_NAME,callerLevel:MY_LEVEL});
+    await fb.set(`notifications/${tId}/incomingCall`,{
+      callId:cId,callerId:MY_UID,callerName:MY_NAME,callerLevel:MY_LEVEL
+    });
+
     // Poll for answer
     let kc=new Set();
     const ap=addPoll(async()=>{
-      const ans=await fb.get(`calls/${cId}/answer`);
-      if(ans&&!pc.currentRemoteDescription){
-        clearInterval(ap);
-        await pc.setRemoteDescription(new RTCSessionDescription(ans));
-        await fb.set(`calls/${cId}/status`,"active");
-        await fb.set(`users/${MY_UID}/status`,"busy");
-        hideOverlay('overlay-out');
-        startActiveCall();
-      }
-      const st=await fb.get(`calls/${cId}/status`);
-      if(st==="declined"){clearInterval(ap);cancelCall();}
-      const cands=await fb.get(`calls/${cId}/calleeCandidates`);
-      if(cands) Object.entries(cands).forEach(([k,v])=>{if(!kc.has(k)){kc.add(k);pc.addIceCandidate(new RTCIceCandidate(v)).catch(()=>{});}});
+      if(!pc) return;
+      try{
+        const st=await fb.get(`calls/${cId}/status`);
+        if(st==="declined"){
+          clearInterval(ap);
+          clearTimeout(callTimeoutTimer);clearInterval(tInt);
+          toast(`${tName} declined the call`,'info');
+          cancelCall();
+          return;
+        }
+        if(st==="cancelled"||st==="ended"){
+          clearInterval(ap);cancelCall();return;
+        }
+
+        const ans=await fb.get(`calls/${cId}/answer`);
+        if(ans&&!pc.currentRemoteDescription){
+          clearInterval(ap);
+          clearTimeout(callTimeoutTimer);clearInterval(tInt);
+          await pc.setRemoteDescription(new RTCSessionDescription(ans));
+          await fb.set(`calls/${cId}/status`,"active");
+          await fb.set(`users/${MY_UID}/status`,"busy");
+          hideOverlay('overlay-out');
+          startActiveCall();
+          return;
+        }
+
+        const cands=await fb.get(`calls/${cId}/calleeCandidates`);
+        if(cands) Object.entries(cands).forEach(([k,v])=>{
+          if(!kc.has(k)){kc.add(k);pc.addIceCandidate(new RTCIceCandidate(v)).catch(()=>{});}
+        });
+      }catch(e){/* silent, retry next tick */}
     },1500);
-  }catch(e){console.error(e);cancelCall();}
+
+  }catch(e){
+    clearTimeout(callTimeoutTimer);clearInterval(tInt);
+    console.error('[sendRequest]',e);
+    toast('Failed to start call','error');
+    cancelCall();
+  }
 }
 
 function cancelCall(){
+  clearTimeout(callTimeoutTimer);callTimeoutTimer=null;
   if(callId) fb.set(`calls/${callId}/status`,"cancelled").catch(()=>{});
   pc?.close(); pc=null;
   localStream?.getTracks().forEach(t=>t.stop()); localStream=null;
   hideOverlay('overlay-out');
   callId=null; partnerData=null;
+  isProcessingCall=false; isInCall=false;
 }
 
 // ════════════════════════════════════════════════
 // ACCEPT / DECLINE
 // ════════════════════════════════════════════════
 async function acceptCall(){
+  if(isInCall){hideOverlay('overlay-in');return;}
   hideOverlay('overlay-in');
+  isInCall=true;
+
   try{
+    try{
+      localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+    }catch(permErr){
+      isInCall=false;isProcessingCall=false;
+      showMicError(permErr);
+      await fb.set(`calls/${callId}/status`,"declined").catch(()=>{});
+      await fb.del(`notifications/${MY_UID}`).catch(()=>{});
+      callId=null;partnerData=null;
+      return;
+    }
+
     pc=new RTCPeerConnection(ICE_CFG);
-    localStream=await navigator.mediaDevices.getUserMedia({audio:true});
     localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
     pc.ontrack=e=>{document.getElementById('remote-audio').srcObject=e.streams[0];};
     pc.onconnectionstatechange=()=>{
       updateConnState(pc.connectionState);
-      if(['disconnected','failed','closed'].includes(pc.connectionState)) endCall();
+      if(pc.connectionState==='connected') reconnectAttempt=0;
+      if(['disconnected','failed'].includes(pc.connectionState)) handleDisconnect();
+      if(pc.connectionState==='closed') endCall();
     };
+
     const cId=callId;
-    pc.onicecandidate=async e=>{if(e.candidate)await fb.push(`calls/${cId}/calleeCandidates`,e.candidate.toJSON());};
+    pc.onicecandidate=async e=>{
+      if(e.candidate) await fb.push(`calls/${cId}/calleeCandidates`,e.candidate.toJSON()).catch(()=>{});
+    };
+
     const offer=await fb.get(`calls/${cId}/offer`);
     await pc.setRemoteDescription(new RTCSessionDescription(offer));
     const answer=await pc.createAnswer();
@@ -556,16 +1091,32 @@ async function acceptCall(){
     await fb.set(`calls/${cId}/status`,"active");
     await fb.del(`notifications/${MY_UID}`);
     await fb.set(`users/${MY_UID}/status`,"busy");
+
     let kc=new Set();
     addPoll(async()=>{
-      const cands=await fb.get(`calls/${cId}/callerCandidates`);
-      if(cands) Object.entries(cands).forEach(([k,v])=>{if(!kc.has(k)){kc.add(k);pc.addIceCandidate(new RTCIceCandidate(v)).catch(()=>{});}});
-    },1000);
+      if(!pc) return;
+      try{
+        const cands=await fb.get(`calls/${cId}/callerCandidates`);
+        if(cands) Object.entries(cands).forEach(([k,v])=>{
+          if(!kc.has(k)){kc.add(k);pc.addIceCandidate(new RTCIceCandidate(v)).catch(()=>{});}
+        });
+        const st=await fb.get(`calls/${cId}/status`);
+        if(st==="ended"||st==="cancelled") endCall();
+      }catch(e){}
+    },1500);
+
     startActiveCall();
-  }catch(e){console.error(e);endCall();}
+  }catch(e){
+    console.error('[acceptCall]',e);
+    toast('Failed to connect','error');
+    isInCall=false;isProcessingCall=false;
+    await fb.set(`calls/${callId}/status`,"declined").catch(()=>{});
+    endCall();
+  }
 }
 
 async function declineCall(){
+  isProcessingCall=false;
   if(callId) await fb.set(`calls/${callId}/status`,"declined").catch(()=>{});
   await fb.del(`notifications/${MY_UID}`).catch(()=>{});
   hideOverlay('overlay-in');
@@ -576,45 +1127,105 @@ async function declineCall(){
 // ACTIVE CALL
 // ════════════════════════════════════════════════
 function startActiveCall(){
+  isInCall=true; isProcessingCall=false;
   stopPolls();
   showPage('page-active');
-  // Set UI
-  document.getElementById('my-av').textContent=ini(MY_NAME);
+
+  safeText('my-av',ini(MY_NAME));
   document.getElementById('my-av').style.background=LB[MY_LEVEL]||'#065F46';
-  document.getElementById('my-ptcp-name').textContent=MY_NAME+" (Me)";
+  safeText('my-ptcp-name',MY_NAME+' (Me)');
+
   if(partnerData){
-    document.getElementById('partner-av').textContent=ini(partnerData.username);
+    safeText('partner-av',ini(partnerData.username));
     document.getElementById('partner-av').style.background=LB[partnerData.level]||'#1E3A8A';
-    document.getElementById('partner-ptcp-name').textContent=partnerData.username;
+    safeText('partner-ptcp-name',partnerData.username);
   }
-  // Start call timer
+
+  // Call duration timer
   callSecs=0;
-  callTimerInt=setInterval(()=>{callSecs++;document.getElementById('call-timer').textContent=fmtTime(callSecs);},1000);
-  // Start session timer (5 min)
-  sessionSecs=300;
-  document.getElementById('session-timer').textContent=fmtTime(sessionSecs);
-  document.getElementById('timer-ended').style.display='none';
+  clearInterval(callTimerInt);
+  callTimerInt=setInterval(()=>{
+    callSecs++;
+    safeText('call-timer',fmtTime(callSecs));
+  },1000);
+
+  // Session countdown (synced to caller = createdAt time if possible)
+  sessionSecs=SESSION_SECS;
+  const stBox=document.getElementById('session-timer-box');
+  const stEl=document.getElementById('session-timer');
+  const endEl=document.getElementById('timer-ended');
+  stBox.className='session-timer';
+  stEl.textContent=fmtTime(sessionSecs);
+  endEl.style.display='none';
+
+  clearInterval(sessionTimerInt);
   sessionTimerInt=setInterval(()=>{
     sessionSecs--;
+    safeText('session-timer',fmtTime(sessionSecs));
+    if(sessionSecs===60){stBox.className='session-timer warning';toast('⏰ 1 minute remaining','info');}
+    if(sessionSecs===10) stBox.className='session-timer critical';
     if(sessionSecs<=0){
       clearInterval(sessionTimerInt);
-      document.getElementById('session-timer').textContent="00:00";
-      document.getElementById('timer-ended').style.display='block';
-    }else{
-      document.getElementById('session-timer').textContent=fmtTime(sessionSecs);
+      safeText('session-timer','00:00');
+      stBox.className='session-timer';
+      endEl.style.display='block';
     }
   },1000);
-  // Activate waveform
-  document.querySelectorAll('.wbar').forEach((b,i)=>{b.classList.add('active');b.style.animationDelay=(i*0.06)+'s';b.style.animationDuration=(0.5+(i%4)*0.17)+'s';});
-  // Load topics
+
+  // Waveform
+  document.querySelectorAll('.wbar').forEach((b,i)=>{
+    b.classList.add('active');
+    b.style.animationDelay=(i*0.06)+'s';
+    b.style.animationDuration=(0.45+(i%5)*0.15)+'s';
+  });
+
   loadTopics();
+  hideReconnectBanner();
 }
 
 function updateConnState(s){
   const el=document.getElementById('conn-state');
-  const map={connecting:{t:"Connecting...",c:"#F59E0B"},connected:{t:"🟢 Connected",c:"#34D399"},disconnected:{t:"🔴 Disconnected",c:"#EF4444"},failed:{t:"⚠️ Failed",c:"#EF4444"}};
+  if(!el) return;
+  const map={
+    connecting:{t:"Connecting…",c:"#F59E0B"},
+    connected:{t:"🟢 Connected",c:"#34D399"},
+    disconnected:{t:"🔴 Disconnected",c:"#EF4444"},
+    failed:{t:"⚠️ Failed — retrying",c:"#EF4444"},
+    closed:{t:"Call ended",c:"#6B7A9C"},
+    new:{t:"Initializing…",c:"#6B7A9C"},
+    checking:{t:"Checking…",c:"#F59E0B"},
+  };
   const info=map[s]||{t:s,c:"#9BA3BF"};
-  el.textContent=info.t; el.style.color=info.c;
+  safeText(el,info.t);
+  el.style.color=info.c;
+}
+
+// ════════════════════════════════════════════════
+// RECONNECT LOGIC
+// ════════════════════════════════════════════════
+function handleDisconnect(){
+  if(!isInCall) return;
+  if(reconnectAttempt>=MAX_RECONNECT){
+    toast('Connection lost — ending call','error');
+    endCall();
+    return;
+  }
+  reconnectAttempt++;
+  showReconnectBanner(reconnectAttempt);
+  // ICE restart attempt
+  if(pc && pc.signalingState!=='closed'){
+    pc.restartIce();
+    toast(`Reconnecting (${reconnectAttempt}/${MAX_RECONNECT})…`,'info');
+  }
+}
+
+function showReconnectBanner(attempt){
+  const b=document.getElementById('reconnect-banner');
+  safeText('reconnect-count',`(attempt ${attempt}/${MAX_RECONNECT})`);
+  b.classList.add('show');
+}
+function hideReconnectBanner(){
+  document.getElementById('reconnect-banner').classList.remove('show');
 }
 
 // ════════════════════════════════════════════════
@@ -627,92 +1238,177 @@ function toggleMute(){
   const icon=document.getElementById('my-mic-icon');
   if(isMuted){
     btn.innerHTML='<span class="ctrl-icon">🔇</span><div><div class="ctrl-label">Unmute</div><div class="ctrl-sub">Mic is off</div></div>';
-    btn.style.background='rgba(239,68,68,.08)';
-    btn.style.borderColor='rgba(239,68,68,.18)';
-    icon.textContent='🔇';
+    btn.classList.add('muted');
+    safeText(icon,'🔇');
     document.querySelectorAll('.wbar').forEach(b=>b.classList.remove('active'));
+    toast('Microphone muted','info',2000);
   }else{
     btn.innerHTML='<span class="ctrl-icon">🎙️</span><div><div class="ctrl-label">Mute</div><div class="ctrl-sub">Mic is on</div></div>';
-    btn.style.background='rgba(255,255,255,.04)';
-    btn.style.borderColor='rgba(255,255,255,.07)';
-    icon.textContent='🎙️';
+    btn.classList.remove('muted');
+    safeText(icon,'🎙️');
     document.querySelectorAll('.wbar').forEach(b=>b.classList.add('active'));
+    toast('Microphone on','success',2000);
   }
 }
 
 function endCall(){
   clearInterval(callTimerInt); clearInterval(sessionTimerInt);
+  clearTimeout(callTimeoutTimer);
+  stopPolls();
+  hideReconnectBanner();
+
   pc?.close(); pc=null;
   localStream?.getTracks().forEach(t=>t.stop()); localStream=null;
   document.getElementById('remote-audio').srcObject=null;
+
   if(callId) fb.set(`calls/${callId}/status`,"ended").catch(()=>{});
-  if(MY_UID) fb.set(`users/${MY_UID}/status`,"available").catch(()=>{});
-  callId=null; partnerData=null; isMuted=false; activeQ=0; questions=[];
+  if(MY_UID){
+    fb.set(`users/${MY_UID}/status`,"available").catch(()=>{});
+    fb.update(`users/${MY_UID}`,{lastSeen:Date.now()}).catch(()=>{});
+  }
+
+  callId=null; partnerData=null; isMuted=false;
+  activeQ=0; questions=[];
+  isInCall=false; isProcessingCall=false;
+  reconnectAttempt=0;
+
   document.getElementById('questions-view').style.display='none';
   document.getElementById('topics-view').style.display='block';
-  document.getElementById('topics-content').innerHTML='<div class="loading" style="margin-top:30px"><div class="spinner"></div><p style="margin-top:12px">Generating topics...</p></div>';
+  document.getElementById('topics-content').innerHTML=
+    '<div class="loading" style="margin-top:30px"><div class="spinner"></div><p style="margin-top:12px">Generating topics…</p></div>';
+
+  // Reset mute button
+  const btn=document.getElementById('btn-mute');
+  btn.innerHTML='<span class="ctrl-icon">🎙️</span><div><div class="ctrl-label">Mute</div><div class="ctrl-sub">Mic is on</div></div>';
+  btn.classList.remove('muted');
+
   showPage('page-lobby');
   startLobbyPolls();
+  toast('Call ended','info');
+}
+
+// ════════════════════════════════════════════════
+// MIC PERMISSION ERROR UI
+// ════════════════════════════════════════════════
+function showMicError(err){
+  const isBlocked=err?.name==='NotAllowedError'||err?.name==='PermissionDeniedError';
+  const warn=document.getElementById('login-warn');
+  if(warn){
+    warn.textContent=isBlocked
+      ? '⚠️ Microphone access was denied. Please allow mic access in your browser settings and try again.'
+      : '⚠️ Could not access your microphone. Please check it is connected and try again.';
+    warn.style.display='block';
+  }
+  showPage('page-lobby');
+  toast(isBlocked?'Mic blocked — check browser settings':'Mic error','error',5000);
 }
 
 // ════════════════════════════════════════════════
 // TOPICS & QUESTIONS
 // ════════════════════════════════════════════════
 async function loadTopics(){
-  document.getElementById('topics-content').innerHTML='<div class="loading" style="margin-top:30px"><div class="spinner"></div><p style="margin-top:12px">Generating topics...</p></div>';
+  document.getElementById('topics-content').innerHTML=
+    '<div class="loading" style="margin-top:30px"><div class="spinner"></div><p style="margin-top:12px">Generating topics…</p></div>';
+
   let topics=FT;
-  const res=await askClaude(`Generate exactly 20 daily life conversation topics for ${MY_LEVEL} level English learners. Return ONLY a valid JSON array. Each item: {"topic":"Short Name","emoji":"single emoji"}.`);
-  if(Array.isArray(res)) topics=res;
-  document.getElementById('topics-content').innerHTML=`
-    <div class="topics-grid">
-      ${topics.map((t,i)=>`
-        <button class="topic-chip" onclick="selectTopic('${t.topic.replace(/'/g,"\\'")}','${t.emoji}')">
-          <span class="topic-emoji">${t.emoji}</span>
-          <span style="flex:1">${t.topic}</span>
-          <span style="color:#2A3452">→</span>
-        </button>
-      `).join('')}
-    </div>
-  `;
+  const res=await askClaude(
+    `Generate exactly 20 daily life conversation topics for ${MY_LEVEL} level English learners.`+
+    ` Return ONLY a valid JSON array. Each item: {"topic":"Short Name","emoji":"single emoji"}.`
+  );
+  if(Array.isArray(res)&&res.length>0) topics=res;
+
+  const grid=document.createElement('div');
+  grid.className='topics-grid';
+  topics.forEach(t=>{
+    const btn=document.createElement('button');
+    btn.className='topic-chip';
+    const em=document.createElement('span');
+    em.className='topic-emoji';em.textContent=t.emoji||'💬';
+    const nm=document.createElement('span');
+    nm.style.flex='1';nm.textContent=t.topic;
+    const arr=document.createElement('span');
+    arr.style.color='#2A3452';arr.textContent='→';
+    btn.append(em,nm,arr);
+    btn.onclick=()=>selectTopic(t.topic,t.emoji||'💬');
+    grid.appendChild(btn);
+  });
+
+  document.getElementById('topics-content').innerHTML='';
+  document.getElementById('topics-content').appendChild(grid);
 }
 
 async function selectTopic(name,emoji){
-  document.getElementById('sel-topic-emoji').textContent=emoji;
-  document.getElementById('sel-topic-name').textContent=name;
+  safeText('sel-topic-emoji',emoji);
+  safeText('sel-topic-name',name);
   document.getElementById('topics-view').style.display='none';
   document.getElementById('questions-view').style.display='block';
-  document.getElementById('questions-content').innerHTML='<div class="loading"><div class="spinner"></div><p style="margin-top:12px">Generating questions...</p></div>';
+  document.getElementById('questions-content').innerHTML=
+    '<div class="loading"><div class="spinner"></div><p style="margin-top:12px">Generating questions…</p></div>';
   activeQ=0;
-  const res=await askClaude(`Generate exactly 5 open-ended conversation questions about "${name}" for ${MY_LEVEL} level English learners. Make them engaging and personal. Return ONLY a valid JSON array of 5 strings.`);
-  if(Array.isArray(res)) questions=res;
-  else questions=[`What does ${name} mean to you personally?`,`Can you describe a memorable ${name} experience?`,`How has your view on ${name} changed?`,`What would you improve about your ${name} habits?`,`If you could change one thing about ${name}, what would it be?`];
+
+  const res=await askClaude(
+    `Generate exactly 5 open-ended conversation questions about "${name}" for ${MY_LEVEL} level English learners.`+
+    ` Make them engaging and personal. Return ONLY a valid JSON array of 5 strings.`
+  );
+  if(Array.isArray(res)&&res.length===5) questions=res;
+  else questions=[
+    `What does ${name} mean to you personally?`,
+    `Can you describe a memorable ${name} experience?`,
+    `How has your view on ${name} changed over time?`,
+    `What would you improve about your ${name} habits?`,
+    `If you could change one thing about ${name}, what would it be?`
+  ];
   renderQuestions();
 }
 
 function renderQuestions(){
-  const qHtml=questions.map((q,i)=>`
-    <div class="q-card ${i===activeQ?'active':''}" onclick="setQ(${i})">
-      <div class="q-num">${i+1}</div>
-      <div class="q-text">${q}</div>
-    </div>
-  `).join('');
-  const dots=questions.map((_,i)=>`<div class="qdot ${i===activeQ?'on':i<activeQ?'done':''}" onclick="setQ(${i})"></div>`).join('');
-  document.getElementById('questions-content').innerHTML=`
-    <div class="q-list">${qHtml}</div>
-    <div class="q-nav" style="margin-top:12px">
-      <button class="q-nav-btn" onclick="setQ(${activeQ-1})" ${activeQ===0?'disabled':''}>← Previous</button>
-      <div class="q-dots">${dots}</div>
-      <button class="q-nav-btn" onclick="setQ(${activeQ+1})" ${activeQ===questions.length-1?'disabled':''}>Next →</button>
-    </div>
-    <div class="q-highlight">
-      <div class="q-hl-num">${activeQ+1} / ${questions.length}</div>
-      <div class="q-hl-text">${questions[activeQ]}</div>
-    </div>
-    <div style="background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.12);border-radius:12px;padding:14px;margin-top:12px;font-size:12px;color:#4A6A9A;line-height:1.6">
-      <strong style="display:block;margin-bottom:6px;color:#6A9ACA;font-family:'Syne',sans-serif">📋 How to use</strong>
-      Both students read the active question and take turns answering in English for 1-2 minutes each.
-    </div>
-  `;
+  const cont=document.getElementById('questions-content');
+  cont.innerHTML='';
+
+  // Q list
+  const list=document.createElement('div');list.className='q-list';
+  questions.forEach((q,i)=>{
+    const card=document.createElement('div');
+    card.className='q-card'+(i===activeQ?' active':'');
+    card.onclick=()=>setQ(i);
+    const num=document.createElement('div');num.className='q-num';num.textContent=i+1;
+    const txt=document.createElement('div');txt.className='q-text';txt.textContent=q;
+    card.append(num,txt);
+    list.appendChild(card);
+  });
+  cont.appendChild(list);
+
+  // Nav
+  const nav=document.createElement('div');nav.className='q-nav';nav.style.marginTop='12px';
+  const prev=document.createElement('button');prev.className='q-nav-btn';prev.textContent='← Previous';
+  prev.disabled=activeQ===0;prev.onclick=()=>setQ(activeQ-1);
+  const dots=document.createElement('div');dots.className='q-dots';
+  questions.forEach((_,i)=>{
+    const d=document.createElement('div');
+    d.className='qdot'+(i===activeQ?' on':i<activeQ?' done':'');
+    d.onclick=()=>setQ(i);
+    dots.appendChild(d);
+  });
+  const next=document.createElement('button');next.className='q-nav-btn';next.textContent='Next →';
+  next.disabled=activeQ===questions.length-1;next.onclick=()=>setQ(activeQ+1);
+  nav.append(prev,dots,next);
+  cont.appendChild(nav);
+
+  // Highlight
+  const hl=document.createElement('div');hl.className='q-highlight';
+  const hlNum=document.createElement('div');hlNum.className='q-hl-num';hlNum.textContent=`${activeQ+1} / ${questions.length}`;
+  const hlTxt=document.createElement('div');hlTxt.className='q-hl-text';hlTxt.textContent=questions[activeQ];
+  hl.append(hlNum,hlTxt);
+  cont.appendChild(hl);
+
+  // How-to hint
+  const hint=document.createElement('div');hint.className='hint-box';hint.style.marginTop='12px';
+  const hTitle=document.createElement('strong');
+  hTitle.style.cssText='display:block;margin-bottom:6px;color:#6A9ACA;font-family:\'Syne\',sans-serif';
+  hTitle.textContent='📋 How to use';
+  const hText=document.createTextNode('Both students read the active question and take turns answering in English for 1–2 minutes each.');
+  hint.append(hTitle,hText);
+  cont.appendChild(hint);
 }
 
 function setQ(i){
@@ -725,9 +1421,6 @@ function backToTopics(){
   document.getElementById('questions-view').style.display='none';
   document.getElementById('topics-view').style.display='block';
 }
-
-// Enter key on login
-document.getElementById('inp-username').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('btn-join').click();});
 </script>
 </body>
 </html>
