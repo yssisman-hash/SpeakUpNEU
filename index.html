@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SpeakUp – English Speaking Partner</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#060A15;color:#E8EDF8;font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh}
+  h1,h2,h3,strong{font-family:'Syne',sans-serif}
+  .page{min-height:100vh;display:none}
+  .page.active{display:flex}
+  .center{align-items:center;justify-content:center}
+  .card{background:rgba(10,15,28,.97);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:40px 36px;width:420px;max-width:94vw;box-shadow:0 40px 100px rgba(0,0,0,.6)}
+  .logo{text-align:center;margin-bottom:28px}
+  .logo-icon{font-size:52px;display:block;margin-bottom:8px}
+  .logo-title{font-size:30px;font-weight:800;color:#34D399;letter-spacing:-1px}
+  .logo-sub{color:#3A4462;font-size:13px;margin-top:6px}
+  .field{margin-bottom:20px}
+  .label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3A4462;margin-bottom:8px;font-family:'Syne',sans-serif}
+  input,select{width:100%;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.09);border-radius:10px;padding:12px 14px;color:#E8EDF8;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none}
+  input:focus,select:focus{border-color:#34D399;box-shadow:0 0 0 3px rgba(52,211,153,.1)}
+  select option{background:#0D1526}
+  .btn{width:100%;padding:14px;background:linear-gradient(135deg,#34D399,#059669);border:none;border-radius:12px;color:#030A08;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .15s}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(52,211,153,.3)}
+  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+  .btn-danger{background:#EF4444;color:white}
+  .btn-danger:hover{background:#DC2626;box-shadow:0 8px 28px rgba(239,68,68,.3)}
+  .btn-sm{padding:9px 18px;font-size:13px;width:auto;border-radius:10px}
+  .err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#FCA5A5;font-size:13px;padding:10px 14px;border-radius:10px;margin-bottom:14px}
+  /* TOPBAR */
+  .topbar{padding:12px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(6,10,21,.9);position:sticky;top:0;z-index:20}
+  .tb-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#34D399}
+  .online-pill{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2);color:#34D399;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px}
+  .me-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:5px 14px;font-size:14px}
+  .lvl-tag{font-family:'Syne',sans-serif;font-weight:700;font-size:11px;padding:3px 8px;border-radius:6px}
+  /* LOBBY */
+  .lobby-body{padding:24px 28px;flex:1}
+  .user-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:16px}
+  .ucard{background:rgba(10,15,28,.8);border:1.5px solid rgba(255,255,255,.07);border-radius:18px;padding:20px 16px;display:flex;flex-direction:column;align-items:center;gap:7px;transition:all .2s}
+  .ucard.available:hover{border-color:rgba(52,211,153,.3);transform:translateY(-3px)}
+  .ucard.busy{opacity:.4}
+  .avatar{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:17px;color:rgba(255,255,255,.9);position:relative}
+  .sdot{position:absolute;bottom:1px;right:1px;width:13px;height:13px;border-radius:50%;border:2.5px solid #060A15}
+  .uname{font-weight:600;font-size:14px}
+  .ustat{font-size:12px;color:#3A4462}
+  /* CALL OVERLAY */
+  .call-overlay{position:fixed;inset:0;background:rgba(6,10,21,.97);z-index:100;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center}
+  .call-overlay.show{display:flex}
+  .call-avatar{width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:24px;color:rgba(255,255,255,.9);margin:0 auto;position:relative;z-index:1}
+  .ripple-wrap{position:relative;width:90px;height:90px;margin:0 auto}
+  .ripple{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(52,211,153,.3);animation:ripple 1.8s ease-out infinite}
+  .ripple2{animation-delay:.9s;border-color:rgba(52,211,153,.15)}
+  @keyframes ripple{0%{transform:scale(.9);opacity:1}100%{transform:scale(2.4);opacity:0}}
+  /* ACTIVE CALL */
+  #page-active{flex-direction:row}
+  .call-panel{width:280px;min-width:260px;background:rgba(6,10,21,.98);border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;overflow-y:auto}
+  .cp-sec{padding:16px;border-bottom:1px solid rgba(255,255,255,.05)}
+  .cp-label{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1E2A3A;margin-bottom:10px;font-family:'Syne',sans-serif}
+  .participants{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .ptcp{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ptcp-av{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:rgba(255,255,255,.9)}
+  .ptcp-name{font-size:10px;color:#6B7A9C;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .call-timer{text-align:center;font-size:28px;font-weight:300;color:#34D399;letter-spacing:3px;font-family:'Syne',sans-serif}
+  .conn-state{text-align:center;font-size:11px;font-weight:600;margin:4px 0 6px}
+  .waveform{display:flex;align-items:center;justify-content:center;gap:3px;height:28px}
+  .wbar{width:3px;border-radius:3px;background:rgba(52,211,153,.2);height:4px}
+  .wbar.active{animation:wb .6s ease-in-out infinite alternate;background:#34D399}
+  @keyframes wb{0%{height:4px;opacity:.4}100%{height:22px;opacity:1}}
+  .ctrl{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:11px;cursor:pointer;width:100%;color:white;font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:7px;transition:all .15s}
+  .ctrl:hover{background:rgba(255,255,255,.07)}
+  .ctrl-icon{font-size:18px}
+  .ctrl-label{font-size:12px;font-weight:600;font-family:'Syne',sans-serif;text-align:left}
+  .ctrl-sub{font-size:10px;color:#3A4462;text-align:left}
+  .cp-tip{margin-top:auto;padding:12px 16px;background:rgba(52,211,153,.04);border-top:1px solid rgba(52,211,153,.08);font-size:12px;color:#3A6A50;line-height:1.5}
+  /* TOPICS */
+  .topics-panel{flex:1;background:#07091A;overflow-y:auto;padding:24px}
+  .topics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;margin-top:16px}
+  .topic-chip{display:flex;align-items:center;gap:9px;padding:12px 11px;background:rgba(10,15,28,.8);border:1.5px solid rgba(255,255,255,.07);border-radius:13px;cursor:pointer;color:#C5CCDC;width:100%;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px}
+  .topic-chip:hover{background:rgba(52,211,153,.07);border-color:rgba(52,211,153,.3);color:white}
+  .topic-emoji{font-size:20px;flex-shrink:0}
+  /* QUESTIONS */
+  .q-list{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+  .q-card{display:flex;align-items:flex-start;gap:12px;padding:14px;background:rgba(10,15,28,.8);border:2px solid rgba(255,255,255,.06);border-radius:13px;cursor:pointer;transition:all .15s}
+  .q-card.active{border-color:#34D399;background:rgba(52,211,153,.05)}
+  .q-num{min-width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#4A5A7A;flex-shrink:0;font-family:'Syne',sans-serif}
+  .q-card.active .q-num{background:#34D399;color:#030A08}
+  .q-text{font-size:14px;line-height:1.55;color:#B5BCCC;padding-top:2px}
+  .q-card.active .q-text{color:white}
+  .q-highlight{background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.15);border-radius:14px;padding:18px;margin-top:14px}
+  .q-hl-num{font-size:11px;font-weight:700;color:#34D399;margin-bottom:6px;font-family:'Syne',sans-serif}
+  .q-hl-text{font-size:16px;font-weight:600;line-height:1.5;color:#E8EDF8;font-family:'Syne',sans-serif}
+  .q-nav{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+  .q-nav-btn{padding:8px 16px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.09);border-radius:9px;color:#5A6A8C;cursor:pointer;font-family:'Syne',sans-serif;font-size:12px;font-weight:600;transition:all .15s}
+  .q-nav-btn:hover:not(:disabled){color:white;border-color:rgba(255,255,255,.25)}
+  .q-nav-btn:disabled{opacity:.3;cursor:not-allowed}
+  .q-dots{display:flex;gap:6px}
+  .qdot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.1);cursor:pointer;transition:all .15s}
+  .qdot.on{background:#34D399;transform:scale(1.3)}
+  .qdot.done{background:rgba(52,211,153,.4)}
+  /* WORD HELPER */
+  .helper-panel{background:rgba(10,15,28,.6);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px;margin-top:14px}
+  .helper-title{font-size:11px;font-weight:700;color:#34D399;margin-bottom:10px;font-family:'Syne',sans-serif}
+  .helper-section{margin-bottom:10px}
+  .helper-section-title{font-size:10px;font-weight:700;color:#4B5A7A;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;font-family:'Syne',sans-serif}
+  .phrase{display:inline-block;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:3px 8px;font-size:12px;color:#9BA3BF;margin:2px}
+  /* TIMER */
+  .session-timer{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.15);border-radius:12px;padding:12px 16px;margin-top:14px;text-align:center}
+  .session-timer-label{font-size:10px;color:#6A9ACA;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;font-family:'Syne',sans-serif}
+  .session-timer-time{font-size:24px;font-weight:300;color:#93C5FD;letter-spacing:2px;font-family:'Syne',sans-serif}
+  /* SPINNER */
+  .spinner{width:32px;height:32px;border:2.5px solid rgba(52,211,153,.2);border-top-color:#34D399;border-radius:50%;animation:spin .75s linear infinite;margin:0 auto}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading{text-align:center;padding:50px 0;color:#3A4462}
+  /* BACK BTN */
+  .back-btn{background:none;border:none;color:#34D399;cursor:pointer;font-size:13px;padding:0;font-family:'Plus Jakarta Sans',sans-serif;font-weight:500;margin-bottom:14px;display:block}
+  .back-btn:hover{text-decoration:underline}
+  /* TIMER ENDED */
+  .timer-ended{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:12px;padding:14px;margin-top:12px;text-align:center;font-size:13px;color:#FCD34D}
+  @media(max-width:768px){
+    #page-active{flex-direction:column}
+    .call-panel{width:100%;min-width:unset;border-right:none;border-bottom:1px solid rgba(255,255,255,.06)}
+    .topics-panel{min-height:60vh}
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ PAGE 1: LOGIN ═══════════ -->
+<div id="page-login" class="page active center" style="padding:20px">
+  <div class="card">
+    <div class="logo">
+      <span class="logo-icon">🗣️</span>
+      <h1 class="logo-title">SpeakUp</h1>
+      <p class="logo-sub">Find your English speaking partner instantly</p>
+    </div>
+    <div class="field">
+      <label class="label">Your Name</label>
+      <input type="text" id="inp-username" placeholder="Enter your name..." maxlength="20"/>
+    </div>
+    <div class="field">
+      <label class="label">English Level</label>
+      <select id="inp-level">
+        <option value="A1">A1 — Beginner</option>
+        <option value="A2" selected>A2 — Elementary</option>
+        <option value="B1">B1 — Intermediate</option>
+        <option value="B2">B2 — Upper Intermediate</option>
+        <option value="C1">C1 — Advanced</option>
+        <option value="C2">C2 — Mastery</option>
+      </select>
+    </div>
+    <div id="login-err" class="err" style="display:none"></div>
+    <button class="btn" id="btn-join">Join Speaking Room →</button>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:18px">
+      <span style="font-size:11px;padding:5px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:20px;color:#5A6A8C">🎙️ Voice Chat</span>
+      <span style="font-size:11px;padding:5px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:20px;color:#5A6A8C">🤖 AI Topics</span>
+      <span style="font-size:11px;padding:5px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:20px;color:#5A6A8C">📚 Guided Questions</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PAGE 2: LOBBY ═══════════ -->
+<div id="page-lobby" class="page" style="flex-direction:column">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:14px">
+      <span class="tb-logo">🗣️ SpeakUp</span>
+      <div class="online-pill" id="online-count">🟢 0 online</div>
+    </div>
+    <div class="me-pill">
+      <span id="me-name">-</span>
+      <span class="lvl-tag" id="me-level" style="background:#34D399;color:#050912">A2</span>
+    </div>
+  </header>
+  <div class="lobby-body">
+    <h2 style="font-size:20px;font-weight:800">Speaking Partners</h2>
+    <div class="user-grid" id="user-grid">
+      <div class="loading"><div class="spinner"></div><p style="margin-top:12px">Loading users...</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ CALL OUT OVERLAY ═══════════ -->
+<div class="call-overlay" id="overlay-out">
+  <div class="ripple-wrap">
+    <div class="ripple"></div><div class="ripple ripple2"></div>
+    <div class="call-avatar" id="out-avatar" style="background:#1E3A8A;position:absolute;inset:0;width:90px;height:90px">??</div>
+  </div>
+  <h2 style="font-size:24px;font-weight:800" id="out-name">-</h2>
+  <p style="color:#34D399;font-weight:500">Calling...</p>
+  <p style="color:#3A4462;font-size:13px">Waiting for them to accept</p>
+  <button class="btn btn-danger btn-sm" onclick="cancelCall()">✕ Cancel</button>
+</div>
+
+<!-- ═══════════ CALL IN OVERLAY ═══════════ -->
+<div class="call-overlay" id="overlay-in">
+  <p style="color:#34D399;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase">📞 Incoming Call</p>
+  <div class="call-avatar" id="in-avatar" style="background:#065F46;margin:0 auto">??</div>
+  <h2 style="font-size:24px;font-weight:800" id="in-name">-</h2>
+  <span class="lvl-tag" id="in-level" style="background:#34D399;color:#050912">A2</span>
+  <div style="display:flex;gap:14px;margin-top:8px">
+    <button class="btn btn-danger btn-sm" onclick="declineCall()">✕ Decline</button>
+    <button class="btn btn-sm" onclick="acceptCall()">✓ Accept</button>
+  </div>
+</div>
+
+<!-- ═══════════ PAGE 3: ACTIVE CALL ═══════════ -->
+<div id="page-active" class="page">
+  <audio id="remote-audio" autoplay playsinline style="display:none"></audio>
+
+  <!-- LEFT: Call Panel -->
+  <div class="call-panel">
+    <div class="cp-sec">
+      <p class="cp-label">LIVE CALL</p>
+      <div class="participants">
+        <div class="ptcp">
+          <div class="ptcp-av" id="my-av" style="background:#065F46">ME</div>
+          <span class="ptcp-name" id="my-ptcp-name">-</span>
+          <span id="my-mic-icon" style="font-size:14px">🎙️</span>
+        </div>
+        <span style="color:#1E2A3A;font-size:11px;font-weight:700">VS</span>
+        <div class="ptcp">
+          <div class="ptcp-av" id="partner-av" style="background:#1E3A8A">??</div>
+          <span class="ptcp-name" id="partner-ptcp-name">-</span>
+          <span style="font-size:14px">🎙️</span>
+        </div>
+      </div>
+      <div class="call-timer" id="call-timer">00:00</div>
+      <div class="conn-state" id="conn-state" style="color:#F59E0B">Connecting...</div>
+      <div class="waveform" id="waveform">
+        <div class="wbar" style="animation-delay:0s"></div>
+        <div class="wbar" style="animation-delay:.06s"></div>
+        <div class="wbar" style="animation-delay:.12s"></div>
+        <div class="wbar" style="animation-delay:.18s"></div>
+        <div class="wbar" style="animation-delay:.24s"></div>
+        <div class="wbar" style="animation-delay:.30s"></div>
+        <div class="wbar" style="animation-delay:.36s"></div>
+        <div class="wbar" style="animation-delay:.42s"></div>
+        <div class="wbar" style="animation-delay:.48s"></div>
+        <div class="wbar" style="animation-delay:.54s"></div>
+        <div class="wbar" style="animation-delay:.60s"></div>
+        <div class="wbar" style="animation-delay:.66s"></div>
+      </div>
+    </div>
+
+    <div class="cp-sec">
+      <p class="cp-label">CONTROLS</p>
+      <button class="ctrl" id="btn-mute" onclick="toggleMute()">
+        <span class="ctrl-icon">🎙️</span>
+        <div><div class="ctrl-label">Mute</div><div class="ctrl-sub">Mic is on</div></div>
+      </button>
+      <button class="ctrl" onclick="endCall()" style="border-color:rgba(239,68,68,.1)">
+        <span class="ctrl-icon">📵</span>
+        <div><div class="ctrl-label" style="color:#EF4444">End Call</div><div class="ctrl-sub">Leave conversation</div></div>
+      </button>
+    </div>
+
+    <div class="cp-sec">
+      <p class="cp-label">SESSION TIMER</p>
+      <div class="session-timer">
+        <div class="session-timer-label">Time Remaining</div>
+        <div class="session-timer-time" id="session-timer">05:00</div>
+      </div>
+      <div class="timer-ended" id="timer-ended" style="display:none">
+        ⏰ Time is over! You can continue or choose another partner.
+      </div>
+    </div>
+
+    <div class="cp-tip">💡 Choose a topic on the right and practice speaking in English!</div>
+  </div>
+
+  <!-- RIGHT: Topics Panel -->
+  <div class="topics-panel" id="topics-panel">
+    <div id="topics-view">
+      <h2 style="font-size:20px;font-weight:800">🎯 Choose a Topic</h2>
+      <p style="color:#3A4462;font-size:13px;margin-top:6px">AI-generated topics for your level</p>
+      <div id="topics-content">
+        <div class="loading" style="margin-top:30px"><div class="spinner"></div><p style="margin-top:12px">Generating topics...</p></div>
+      </div>
+    </div>
+
+    <div id="questions-view" style="display:none">
+      <button class="back-btn" onclick="backToTopics()">← All Topics</button>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+        <span id="sel-topic-emoji" style="font-size:42px">🍳</span>
+        <div>
+          <h2 style="font-size:20px;font-weight:800" id="sel-topic-name">-</h2>
+          <p style="color:#3A4462;font-size:13px;margin-top:4px">5 open-ended questions</p>
+        </div>
+      </div>
+
+      <div id="questions-content">
+        <div class="loading"><div class="spinner"></div><p style="margin-top:12px">Generating questions...</p></div>
+      </div>
+
+      <!-- Word Helper -->
+      <div class="helper-panel" style="margin-top:16px">
+        <div class="helper-title">💬 Speaking Word Helper</div>
+        <div class="helper-section">
+          <div class="helper-section-title">Conversation Starters</div>
+          <span class="phrase">I think that…</span>
+          <span class="phrase">In my opinion…</span>
+          <span class="phrase">I believe that…</span>
+          <span class="phrase">Personally, I…</span>
+        </div>
+        <div class="helper-section">
+          <div class="helper-section-title">Asking Questions</div>
+          <span class="phrase">What do you think?</span>
+          <span class="phrase">Why do you like it?</span>
+          <span class="phrase">Can you explain more?</span>
+          <span class="phrase">Really? Tell me more!</span>
+        </div>
+        <div class="helper-section">
+          <div class="helper-section-title">Reacting</div>
+          <span class="phrase">That's interesting!</span>
+          <span class="phrase">I agree with you.</span>
+          <span class="phrase">I see your point.</span>
+          <span class="phrase">That's a great idea!</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════
+const API_KEY  = "AIzaSyCsFU6h2Mi-ybuft-fISR7zGCJC4XgPPCo";
+const DB_URL   = "https://speakupneu-default-rtdb.europe-west1.firebasedatabase.app";
+const AUTH_URL = "https://identitytoolkit.googleapis.com/v1";
+const ICE_CFG  = { iceServers:[{urls:["stun:stun1.l.google.com:19302","stun:stun2.l.google.com:19302"]}] };
+
+const LC = {A1:"#10B981",A2:"#34D399",B1:"#3B82F6",B2:"#8B5CF6",C1:"#F59E0B",C2:"#EF4444"};
+const LB = {A1:"#064E3B",A2:"#065F46",B1:"#1E3A8A",B2:"#4C1D95",C1:"#78350F",C2:"#7F1D1D"};
+
+const FT = [
+  {topic:"Food & Cooking",emoji:"🍳"},{topic:"Travel",emoji:"✈️"},
+  {topic:"Hobbies",emoji:"🎨"},{topic:"Family",emoji:"👨‍👩‍👧"},
+  {topic:"Friends",emoji:"👫"},{topic:"Movies",emoji:"🎬"},
+  {topic:"Music",emoji:"🎵"},{topic:"School",emoji:"📚"},
+  {topic:"Shopping",emoji:"🛒"},{topic:"Daily Routine",emoji:"🌅"},
+  {topic:"Sports",emoji:"⚽"},{topic:"Technology",emoji:"📱"},
+  {topic:"Holidays",emoji:"🎉"},{topic:"Weather",emoji:"☁️"},
+  {topic:"Health",emoji:"💪"},{topic:"Social Media",emoji:"📲"},
+  {topic:"Free Time",emoji:"🛋️"},{topic:"Books",emoji:"📖"},
+  {topic:"Weekend",emoji:"🏖️"},{topic:"Pets",emoji:"🐾"}
+];
+
+// ════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════
+let TOKEN=null, MY_UID=null, MY_NAME="", MY_LEVEL="A2";
+let partnerData=null, callId=null, pc=null;
+let localStream=null, isMuted=false;
+let callTimerInt=null, callSecs=0;
+let sessionTimerInt=null, sessionSecs=300;
+let pollInts=[];
+let activeQ=0, questions=[];
+
+// ════════════════════════════════════════════════
+// FIREBASE REST
+// ════════════════════════════════════════════════
+const fb = {
+  async login(){
+    const r=await fetch(`${AUTH_URL}/accounts:signUp?key=${API_KEY}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({returnSecureToken:true})});
+    const d=await r.json(); if(d.error) throw new Error(d.error.message);
+    TOKEN=d.idToken; MY_UID=d.localId; return d.localId;
+  },
+  async set(p,v){return fetch(`${DB_URL}/${p}.json?auth=${TOKEN}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(v)});},
+  async get(p){const r=await fetch(`${DB_URL}/${p}.json?auth=${TOKEN}`);return r.json();},
+  async push(p,v){const r=await fetch(`${DB_URL}/${p}.json?auth=${TOKEN}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(v)});const d=await r.json();return d.name;},
+  async del(p){return fetch(`${DB_URL}/${p}.json?auth=${TOKEN}`,{method:"DELETE"});}
+};
+
+// ════════════════════════════════════════════════
+// CLAUDE API
+// ════════════════════════════════════════════════
+async function askClaude(prompt){
+  try{
+    const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,messages:[{role:"user",content:prompt}]})});
+    const d=await r.json();
+    return JSON.parse(d.content[0].text.trim().replace(/```json|```/g,"").trim());
+  }catch(e){return null;}
+}
+
+// ════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showOverlay(id){document.getElementById(id).classList.add('show');}
+function hideOverlay(id){document.getElementById(id).classList.remove('show');}
+function ini(n){return (n||"??").slice(0,2).toUpperCase();}
+function fmtTime(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");}
+function stopPolls(){pollInts.forEach(clearInterval);pollInts=[];}
+function addPoll(fn,ms){const id=setInterval(fn,ms);pollInts.push(id);return id;}
+
+// ════════════════════════════════════════════════
+// LOGIN
+// ════════════════════════════════════════════════
+document.getElementById('btn-join').onclick = async()=>{
+  const name=document.getElementById('inp-username').value.trim();
+  const level=document.getElementById('inp-level').value;
+  if(!name){showErr("Please enter your name!");return;}
+  const btn=document.getElementById('btn-join');
+  btn.disabled=true; btn.textContent="Joining...";
+  hideErr();
+  try{
+    const uid=await fb.login();
+    MY_NAME=name; MY_LEVEL=level; MY_UID=uid;
+    await fb.set(`users/${uid}`,{username:name,level,status:"available",joinedAt:Date.now()});
+    // remove on disconnect not possible with REST but we'll clean up on unload
+    window.addEventListener('beforeunload',()=>fb.del(`users/${uid}`));
+    document.getElementById('me-name').textContent=name;
+    const lt=document.getElementById('me-level');
+    lt.textContent=level; lt.style.background=LC[level];
+    showPage('page-lobby');
+    startLobbyPolls();
+  }catch(e){showErr("Connection error: "+e.message);btn.disabled=false;btn.textContent="Join Speaking Room →";}
+};
+
+function showErr(msg){const el=document.getElementById('login-err');el.textContent=msg;el.style.display="block";}
+function hideErr(){document.getElementById('login-err').style.display="none";}
+
+// ════════════════════════════════════════════════
+// LOBBY
+// ════════════════════════════════════════════════
+function startLobbyPolls(){
+  refreshUsers();
+  addPoll(refreshUsers,3000);
+  addPoll(checkIncoming,2000);
+}
+
+async function refreshUsers(){
+  const data=await fb.get("users");
+  const grid=document.getElementById('user-grid');
+  if(!data){grid.innerHTML='<p style="color:#3A4462;padding:40px 0;text-align:center">No users yet. Share the link with friends!</p>';return;}
+  const users=Object.entries(data).filter(([id])=>id!==MY_UID);
+  const avail=users.filter(([,u])=>u.status==="available").length;
+  document.getElementById('online-count').textContent=`🟢 ${avail} online`;
+  if(users.length===0){grid.innerHTML='<div style="text-align:center;padding:60px 0;color:#3A4462"><div style="font-size:48px;margin-bottom:12px">👥</div><p>No other users yet.</p><p style="font-size:13px;margin-top:6px">Share this app with friends!</p></div>';return;}
+  grid.innerHTML=users.map(([id,u])=>`
+    <div class="ucard ${u.status}" style="cursor:${u.status==='available'?'pointer':'default'}">
+      <div class="avatar" style="background:${LB[u.level]||'#1E3A8A'}">
+        ${ini(u.username)}
+        <div class="sdot" style="background:${u.status==='available'?'#34D399':'#EF4444'}"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;margin-top:4px">
+        <span class="uname">${u.username}</span>
+        <span class="lvl-tag" style="background:${LC[u.level]||'#34D399'};color:#050912">${u.level}</span>
+      </div>
+      <p class="ustat">${u.status==='available'?'Ready to talk ✓':'In a call...'}</p>
+      <button class="btn btn-sm" style="margin-top:4px" ${u.status==='busy'?'disabled':''} onclick="sendRequest('${id}','${u.username}','${u.level}')">
+        ${u.status==='busy'?'Busy':'🎤 Connect'}
+      </button>
+    </div>
+  `).join('');
+}
+
+async function checkIncoming(){
+  if(!MY_UID) return;
+  const n=await fb.get(`notifications/${MY_UID}`);
+  if(n?.incomingCall){
+    const c=n.incomingCall;
+    partnerData={id:c.callerId,username:c.callerName,level:c.callerLevel};
+    callId=c.callId;
+    const av=document.getElementById('in-avatar');
+    av.textContent=ini(c.callerName);
+    av.style.background=LB[c.callerLevel]||'#1E3A8A';
+    document.getElementById('in-name').textContent=c.callerName;
+    const il=document.getElementById('in-level');
+    il.textContent=c.callerLevel+" Level";
+    il.style.background=LC[c.callerLevel]||'#34D399';
+    showOverlay('overlay-in');
+  }
+}
+
+// ════════════════════════════════════════════════
+// MAKE CALL
+// ════════════════════════════════════════════════
+async function sendRequest(tId,tName,tLevel){
+  partnerData={id:tId,username:tName,level:tLevel};
+  const av=document.getElementById('out-avatar');
+  av.textContent=ini(tName);
+  av.style.background=LB[tLevel]||'#1E3A8A';
+  document.getElementById('out-name').textContent=tName;
+  showOverlay('overlay-out');
+  try{
+    pc=new RTCPeerConnection(ICE_CFG);
+    localStream=await navigator.mediaDevices.getUserMedia({audio:true});
+    localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
+    pc.ontrack=e=>{document.getElementById('remote-audio').srcObject=e.streams[0];};
+    pc.onconnectionstatechange=()=>{
+      updateConnState(pc.connectionState);
+      if(['disconnected','failed','closed'].includes(pc.connectionState)) endCall();
+    };
+    const cId=await fb.push("calls",{callerId:MY_UID,calleeId:tId,status:"pending",createdAt:Date.now()});
+    callId=cId;
+    pc.onicecandidate=async e=>{if(e.candidate)await fb.push(`calls/${cId}/callerCandidates`,e.candidate.toJSON());};
+    const offer=await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    await fb.set(`calls/${cId}/offer`,{sdp:offer.sdp,type:offer.type});
+    await fb.set(`notifications/${tId}/incomingCall`,{callId:cId,callerId:MY_UID,callerName:MY_NAME,callerLevel:MY_LEVEL});
+    // Poll for answer
+    let kc=new Set();
+    const ap=addPoll(async()=>{
+      const ans=await fb.get(`calls/${cId}/answer`);
+      if(ans&&!pc.currentRemoteDescription){
+        clearInterval(ap);
+        await pc.setRemoteDescription(new RTCSessionDescription(ans));
+        await fb.set(`calls/${cId}/status`,"active");
+        await fb.set(`users/${MY_UID}/status`,"busy");
+        hideOverlay('overlay-out');
+        startActiveCall();
+      }
+      const st=await fb.get(`calls/${cId}/status`);
+      if(st==="declined"){clearInterval(ap);cancelCall();}
+      const cands=await fb.get(`calls/${cId}/calleeCandidates`);
+      if(cands) Object.entries(cands).forEach(([k,v])=>{if(!kc.has(k)){kc.add(k);pc.addIceCandidate(new RTCIceCandidate(v)).catch(()=>{});}});
+    },1500);
+  }catch(e){console.error(e);cancelCall();}
+}
+
+function cancelCall(){
+  if(callId) fb.set(`calls/${callId}/status`,"cancelled").catch(()=>{});
+  pc?.close(); pc=null;
+  localStream?.getTracks().forEach(t=>t.stop()); localStream=null;
+  hideOverlay('overlay-out');
+  callId=null; partnerData=null;
+}
+
+// ════════════════════════════════════════════════
+// ACCEPT / DECLINE
+// ════════════════════════════════════════════════
+async function acceptCall(){
+  hideOverlay('overlay-in');
+  try{
+    pc=new RTCPeerConnection(ICE_CFG);
+    localStream=await navigator.mediaDevices.getUserMedia({audio:true});
+    localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
+    pc.ontrack=e=>{document.getElementById('remote-audio').srcObject=e.streams[0];};
+    pc.onconnectionstatechange=()=>{
+      updateConnState(pc.connectionState);
+      if(['disconnected','failed','closed'].includes(pc.connectionState)) endCall();
+    };
+    const cId=callId;
+    pc.onicecandidate=async e=>{if(e.candidate)await fb.push(`calls/${cId}/calleeCandidates`,e.candidate.toJSON());};
+    const offer=await fb.get(`calls/${cId}/offer`);
+    await pc.setRemoteDescription(new RTCSessionDescription(offer));
+    const answer=await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    await fb.set(`calls/${cId}/answer`,{sdp:answer.sdp,type:answer.type});
+    await fb.set(`calls/${cId}/status`,"active");
+    await fb.del(`notifications/${MY_UID}`);
+    await fb.set(`users/${MY_UID}/status`,"busy");
+    let kc=new Set();
+    addPoll(async()=>{
+      const cands=await fb.get(`calls/${cId}/callerCandidates`);
+      if(cands) Object.entries(cands).forEach(([k,v])=>{if(!kc.has(k)){kc.add(k);pc.addIceCandidate(new RTCIceCandidate(v)).catch(()=>{});}});
+    },1000);
+    startActiveCall();
+  }catch(e){console.error(e);endCall();}
+}
+
+async function declineCall(){
+  if(callId) await fb.set(`calls/${callId}/status`,"declined").catch(()=>{});
+  await fb.del(`notifications/${MY_UID}`).catch(()=>{});
+  hideOverlay('overlay-in');
+  callId=null; partnerData=null;
+}
+
+// ════════════════════════════════════════════════
+// ACTIVE CALL
+// ════════════════════════════════════════════════
+function startActiveCall(){
+  stopPolls();
+  showPage('page-active');
+  // Set UI
+  document.getElementById('my-av').textContent=ini(MY_NAME);
+  document.getElementById('my-av').style.background=LB[MY_LEVEL]||'#065F46';
+  document.getElementById('my-ptcp-name').textContent=MY_NAME+" (Me)";
+  if(partnerData){
+    document.getElementById('partner-av').textContent=ini(partnerData.username);
+    document.getElementById('partner-av').style.background=LB[partnerData.level]||'#1E3A8A';
+    document.getElementById('partner-ptcp-name').textContent=partnerData.username;
+  }
+  // Start call timer
+  callSecs=0;
+  callTimerInt=setInterval(()=>{callSecs++;document.getElementById('call-timer').textContent=fmtTime(callSecs);},1000);
+  // Start session timer (5 min)
+  sessionSecs=300;
+  document.getElementById('session-timer').textContent=fmtTime(sessionSecs);
+  document.getElementById('timer-ended').style.display='none';
+  sessionTimerInt=setInterval(()=>{
+    sessionSecs--;
+    if(sessionSecs<=0){
+      clearInterval(sessionTimerInt);
+      document.getElementById('session-timer').textContent="00:00";
+      document.getElementById('timer-ended').style.display='block';
+    }else{
+      document.getElementById('session-timer').textContent=fmtTime(sessionSecs);
+    }
+  },1000);
+  // Activate waveform
+  document.querySelectorAll('.wbar').forEach((b,i)=>{b.classList.add('active');b.style.animationDelay=(i*0.06)+'s';b.style.animationDuration=(0.5+(i%4)*0.17)+'s';});
+  // Load topics
+  loadTopics();
+}
+
+function updateConnState(s){
+  const el=document.getElementById('conn-state');
+  const map={connecting:{t:"Connecting...",c:"#F59E0B"},connected:{t:"🟢 Connected",c:"#34D399"},disconnected:{t:"🔴 Disconnected",c:"#EF4444"},failed:{t:"⚠️ Failed",c:"#EF4444"}};
+  const info=map[s]||{t:s,c:"#9BA3BF"};
+  el.textContent=info.t; el.style.color=info.c;
+}
+
+// ════════════════════════════════════════════════
+// MUTE / END
+// ════════════════════════════════════════════════
+function toggleMute(){
+  isMuted=!isMuted;
+  localStream?.getAudioTracks().forEach(t=>{t.enabled=!isMuted;});
+  const btn=document.getElementById('btn-mute');
+  const icon=document.getElementById('my-mic-icon');
+  if(isMuted){
+    btn.innerHTML='<span class="ctrl-icon">🔇</span><div><div class="ctrl-label">Unmute</div><div class="ctrl-sub">Mic is off</div></div>';
+    btn.style.background='rgba(239,68,68,.08)';
+    btn.style.borderColor='rgba(239,68,68,.18)';
+    icon.textContent='🔇';
+    document.querySelectorAll('.wbar').forEach(b=>b.classList.remove('active'));
+  }else{
+    btn.innerHTML='<span class="ctrl-icon">🎙️</span><div><div class="ctrl-label">Mute</div><div class="ctrl-sub">Mic is on</div></div>';
+    btn.style.background='rgba(255,255,255,.04)';
+    btn.style.borderColor='rgba(255,255,255,.07)';
+    icon.textContent='🎙️';
+    document.querySelectorAll('.wbar').forEach(b=>b.classList.add('active'));
+  }
+}
+
+function endCall(){
+  clearInterval(callTimerInt); clearInterval(sessionTimerInt);
+  pc?.close(); pc=null;
+  localStream?.getTracks().forEach(t=>t.stop()); localStream=null;
+  document.getElementById('remote-audio').srcObject=null;
+  if(callId) fb.set(`calls/${callId}/status`,"ended").catch(()=>{});
+  if(MY_UID) fb.set(`users/${MY_UID}/status`,"available").catch(()=>{});
+  callId=null; partnerData=null; isMuted=false; activeQ=0; questions=[];
+  document.getElementById('questions-view').style.display='none';
+  document.getElementById('topics-view').style.display='block';
+  document.getElementById('topics-content').innerHTML='<div class="loading" style="margin-top:30px"><div class="spinner"></div><p style="margin-top:12px">Generating topics...</p></div>';
+  showPage('page-lobby');
+  startLobbyPolls();
+}
+
+// ════════════════════════════════════════════════
+// TOPICS & QUESTIONS
+// ════════════════════════════════════════════════
+async function loadTopics(){
+  document.getElementById('topics-content').innerHTML='<div class="loading" style="margin-top:30px"><div class="spinner"></div><p style="margin-top:12px">Generating topics...</p></div>';
+  let topics=FT;
+  const res=await askClaude(`Generate exactly 20 daily life conversation topics for ${MY_LEVEL} level English learners. Return ONLY a valid JSON array. Each item: {"topic":"Short Name","emoji":"single emoji"}.`);
+  if(Array.isArray(res)) topics=res;
+  document.getElementById('topics-content').innerHTML=`
+    <div class="topics-grid">
+      ${topics.map((t,i)=>`
+        <button class="topic-chip" onclick="selectTopic('${t.topic.replace(/'/g,"\\'")}','${t.emoji}')">
+          <span class="topic-emoji">${t.emoji}</span>
+          <span style="flex:1">${t.topic}</span>
+          <span style="color:#2A3452">→</span>
+        </button>
+      `).join('')}
+    </div>
+  `;
+}
+
+async function selectTopic(name,emoji){
+  document.getElementById('sel-topic-emoji').textContent=emoji;
+  document.getElementById('sel-topic-name').textContent=name;
+  document.getElementById('topics-view').style.display='none';
+  document.getElementById('questions-view').style.display='block';
+  document.getElementById('questions-content').innerHTML='<div class="loading"><div class="spinner"></div><p style="margin-top:12px">Generating questions...</p></div>';
+  activeQ=0;
+  const res=await askClaude(`Generate exactly 5 open-ended conversation questions about "${name}" for ${MY_LEVEL} level English learners. Make them engaging and personal. Return ONLY a valid JSON array of 5 strings.`);
+  if(Array.isArray(res)) questions=res;
+  else questions=[`What does ${name} mean to you personally?`,`Can you describe a memorable ${name} experience?`,`How has your view on ${name} changed?`,`What would you improve about your ${name} habits?`,`If you could change one thing about ${name}, what would it be?`];
+  renderQuestions();
+}
+
+function renderQuestions(){
+  const qHtml=questions.map((q,i)=>`
+    <div class="q-card ${i===activeQ?'active':''}" onclick="setQ(${i})">
+      <div class="q-num">${i+1}</div>
+      <div class="q-text">${q}</div>
+    </div>
+  `).join('');
+  const dots=questions.map((_,i)=>`<div class="qdot ${i===activeQ?'on':i<activeQ?'done':''}" onclick="setQ(${i})"></div>`).join('');
+  document.getElementById('questions-content').innerHTML=`
+    <div class="q-list">${qHtml}</div>
+    <div class="q-nav" style="margin-top:12px">
+      <button class="q-nav-btn" onclick="setQ(${activeQ-1})" ${activeQ===0?'disabled':''}>← Previous</button>
+      <div class="q-dots">${dots}</div>
+      <button class="q-nav-btn" onclick="setQ(${activeQ+1})" ${activeQ===questions.length-1?'disabled':''}>Next →</button>
+    </div>
+    <div class="q-highlight">
+      <div class="q-hl-num">${activeQ+1} / ${questions.length}</div>
+      <div class="q-hl-text">${questions[activeQ]}</div>
+    </div>
+    <div style="background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.12);border-radius:12px;padding:14px;margin-top:12px;font-size:12px;color:#4A6A9A;line-height:1.6">
+      <strong style="display:block;margin-bottom:6px;color:#6A9ACA;font-family:'Syne',sans-serif">📋 How to use</strong>
+      Both students read the active question and take turns answering in English for 1-2 minutes each.
+    </div>
+  `;
+}
+
+function setQ(i){
+  if(i<0||i>=questions.length) return;
+  activeQ=i;
+  renderQuestions();
+}
+
+function backToTopics(){
+  document.getElementById('questions-view').style.display='none';
+  document.getElementById('topics-view').style.display='block';
+}
+
+// Enter key on login
+document.getElementById('inp-username').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('btn-join').click();});
+</script>
+</body>
+</html>
